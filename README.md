@@ -155,6 +155,79 @@ Expansion Modules
 
 ---
 
+## Future Vision
+
+BlackCapy is designed to evolve into a fully featured professional portable toolkit for hardware interaction, wireless analysis and automated operations.
+
+The long-term goal is to transform it into a powerful field device capable of handling multiple protocols, environments and workflows with high flexibility and performance.
+
+### Planned Advanced Features
+
+#### Wireless Capabilities
+
+* Advanced WiFi analysis (monitor mode, packet inspection with external modules)
+* BLE scanner with device profiling
+* RF analysis via expansion modules (sub-GHz, LoRa, SDR support)
+* Signal replay and controlled transmission (hardware-dependent)
+
+#### Hardware Interaction
+
+* Full GPIO control suite (digital, analog, PWM, interrupts)
+* Logic analyzer (basic digital signal inspection)
+* Sensor integration (temperature, distance, light, etc.)
+* External module ecosystem (plug-and-play architecture)
+
+#### Communication & Protocols
+
+* NFC / RFID reading and interaction
+* Infrared (IR) capture and transmission
+* UART, SPI and I2C protocol tools
+* Custom protocol debugging tools
+
+#### Storage & Data
+
+* SD card support for logs and captures
+* Structured data export (JSON, CSV)
+* Session recording and replay
+* Persistent configuration system
+
+#### Interface & Usability
+
+* Dedicated display interface
+* Physical navigation controls (buttons, encoder)
+* Highly customizable UI (themes, layouts, profiles)
+* Fast navigation optimized for field usage
+
+#### Automation & Scripting
+
+* Advanced automation engine
+* Rule-based triggers (event-driven execution)
+* Scriptable workflows
+* Task scheduling and chaining
+
+#### Intelligence Layer
+
+* AI-assisted analysis (optional external integration)
+* Pattern recognition in collected data
+* Automated diagnostics and suggestions
+* Log summarization and anomaly detection
+
+#### System Architecture
+
+* Plugin-based tool system
+* Dynamic module loading
+* Hardware abstraction layer
+* Performance-oriented core services
+
+---
+
+### Vision Statement
+
+BlackCapy aims to become a modular, extensible and professional-grade platform that bridges the gap between embedded systems, wireless analysis and real-world technical operations.
+
+It is built not just as a tool, but as a system capable of evolving with new hardware, new protocols and new use cases.
+
+
 ## Status
 
 Phase: Core Firmware (Stable Base)
