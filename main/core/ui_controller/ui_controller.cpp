@@ -2,6 +2,7 @@
 
 #include "input_manager.h"
 #include "screen_manager.h"
+#include "app_manager.h"
 #include "logger.h"
 
 static int currentTab = 0;
@@ -21,13 +22,44 @@ void uiControllerInit() {
   logInfo("UI controller initialized.");
 }
 
-void uiControllerUpdate() {
-  InputEvent event = inputRead();
+void handleToolsInput(InputEvent event) {
+  switch (event) {
+    case INPUT_UP:
+      appManagerPrevious();
+      screenRenderTools();
+      break;
 
-  if (event == INPUT_NONE) {
-    return;
+    case INPUT_DOWN:
+      appManagerNext();
+      screenRenderTools();
+      break;
+
+    case INPUT_OK:
+      appManagerRunSelected();
+      screenRenderTools();
+      break;
+
+    case INPUT_BACK:
+      currentTab = 0;
+      screenSet(SCREEN_HOME);
+      break;
+
+    case INPUT_LEFT:
+      currentTab = 0;
+      screenSet(SCREEN_HOME);
+      break;
+
+    case INPUT_RIGHT:
+      currentTab = 2;
+      screenSet(SCREEN_STATUS);
+      break;
+
+    default:
+      break;
   }
+}
 
+void handleTabNavigation(InputEvent event) {
   switch (event) {
     case INPUT_LEFT:
       if (currentTab > 0) {
@@ -49,10 +81,6 @@ void uiControllerUpdate() {
       screenSet(tabs[currentTab]);
       break;
 
-    case INPUT_OK:
-      logInfo("OK pressed on current screen.");
-      break;
-
     case INPUT_BACK:
       currentTab = 0;
       screenSet(SCREEN_HOME);
@@ -61,4 +89,19 @@ void uiControllerUpdate() {
     default:
       break;
   }
+}
+
+void uiControllerUpdate() {
+  InputEvent event = inputRead();
+
+  if (event == INPUT_NONE) {
+    return;
+  }
+
+  if (screenGet() == SCREEN_TOOLS) {
+    handleToolsInput(event);
+    return;
+  }
+
+  handleTabNavigation(event);
 }

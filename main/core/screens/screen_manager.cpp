@@ -1,7 +1,7 @@
 #include "screen_manager.h"
 #include "display_manager.h"
 #include "blackcapy.h"
-
+#include "app_manager.h"
 static ScreenId currentScreen = SCREEN_HOME;
 
 void screenManagerInit() {
@@ -30,11 +30,55 @@ void renderHome() {
 void renderTools() {
   displayClear();
   displayDrawTitle("Tools");
-  displayDrawText(0, 40, "> System Monitor");
-  displayDrawText(0, 60, "  WiFi Scanner");
-  displayDrawText(0, 80, "  GPIO Console");
-  displayDrawText(0, 100, "  Module Manager");
-  displayDrawStatusBar("TOOLS");
+
+  int total = appManagerCount();
+  int selected = appManagerSelectedIndex();
+
+  if (total <= 0) {
+    displayDrawText(0, 40, "No tools registered.");
+    displayDrawStatusBar("TOOLS EMPTY");
+    displayRefresh();
+    return;
+  }
+
+  int start = selected - 2;
+
+  if (start < 0) {
+    start = 0;
+  }
+
+  int end = start + 5;
+
+  if (end > total) {
+    end = total;
+  }
+
+  for (int i = start; i < end; i++) {
+    AppEntry* app = appManagerGet(i);
+
+    if (app == nullptr) continue;
+
+    String line = "";
+
+    if (i == selected) {
+      line += "> ";
+    } else {
+      line += "  ";
+    }
+
+    line += app->name;
+
+    displayDrawText(0, 40 + ((i - start) * 20), line);
+  }
+
+  AppEntry* selectedApp = appManagerGetSelected();
+
+  if (selectedApp != nullptr) {
+    displayDrawText(0, 160, "Category: " + String(selectedApp->category));
+    displayDrawText(0, 180, String(selectedApp->description));
+  }
+
+  displayDrawStatusBar("UP/DOWN SELECT | OK RUN");
   displayRefresh();
 }
 
@@ -80,4 +124,7 @@ void screenRender() {
       renderHome();
       break;
   }
+}
+void screenRenderTools() {
+  renderTools();
 }

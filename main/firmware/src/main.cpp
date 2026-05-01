@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
+#include "hardware_config.h"
+
 #include "blackcapy.h"
 #include "logger.h"
 #include "menu.h"
@@ -28,6 +30,7 @@
 #include "command_shell.h"
 #include "health_monitor.h"
 #include "ui_controller.h"
+#include "app_manager.h"
 
 void rebootDevice() {
   Serial.println();
@@ -36,7 +39,7 @@ void rebootDevice() {
   ESP.restart();
 }
 
-ToolEntry tools[] = {
+AppEntry apps[] = {
   {
     TOOL_SYSTEM_MONITOR,
     "System Monitor",
@@ -153,36 +156,39 @@ ToolEntry tools[] = {
   }
 };
 
-const int toolCount = sizeof(tools) / sizeof(tools[0]);
+const int appCount = sizeof(apps) / sizeof(apps[0]);
 
 void setup() {
   Serial.begin(BLACKCAPY_SERIAL_BAUD);
   delay(1000);
 
-  pinMode(BLACKCAPY_STATUS_LED, OUTPUT);
-  digitalWrite(BLACKCAPY_STATUS_LED, LOW);
+  pinMode(STATUS_LED_PIN, OUTPUT);
+  digitalWrite(STATUS_LED_PIN, LOW);
 
   WiFi.mode(WIFI_STA);
   WiFi.disconnect(true);
 
   loggerInit();
-  menuInit();
-  automationInit();
-  
-  menuRegisterTools(tools, toolCount);
-  uiInit();
   storageInit();
   eventBusInit();
   statusInit();
   registryInit();
-  healthMonitorInit();
+
   inputInit();
-  navigationInit();
   displayInit();
   screenManagerInit();
-  screenRender();
+
+  appManagerInit(apps, appCount);
+
+  menuInit();
+  automationInit();
+  healthMonitorInit();
+
+  uiInit();
   uiControllerInit();
+
   eventEmit(EVENT_BOOT, "BlackCapy boot completed");
+
   menuPrintHeader();
 
   logInfo("Boot completed.");
@@ -191,7 +197,6 @@ void setup() {
 
   menuPrint();
 }
-
 void loop() {
   healthMonitorTick();
 

@@ -1,19 +1,11 @@
 #include "menu.h"
+
 #include "logger.h"
 #include "blackcapy.h"
-
-static ToolEntry* registeredTools = nullptr;
-static int registeredToolCount = 0;
+#include "app_manager.h"
 
 void menuInit() {
   logInfo("Menu initialized.");
-}
-
-void menuRegisterTools(ToolEntry* tools, int count) {
-  registeredTools = tools;
-  registeredToolCount = count;
-
-  logInfo("Tools registered: " + String(count));
 }
 
 void menuPrintHeader() {
@@ -32,21 +24,32 @@ void menuPrintHeader() {
 
 void menuPrint() {
   Serial.println();
-  Serial.println("Available tools:");
+  Serial.println("Available apps:");
 
-  for (int i = 0; i < registeredToolCount; i++) {
+  int total = appManagerCount();
+
+  for (int i = 0; i < total; i++) {
+    AppEntry* app = appManagerGet(i);
+
+    if (app == nullptr) {
+      continue;
+    }
+
     Serial.print("[");
-    Serial.print(registeredTools[i].id);
+    Serial.print(app->id);
     Serial.print("] ");
-    Serial.print(registeredTools[i].name);
+    Serial.print(app->name);
     Serial.print(" - ");
-    Serial.println(registeredTools[i].description);
+    Serial.println(app->description);
   }
 
   Serial.println();
   Serial.println("Commands:");
-  Serial.println("help  - Show menu");
-  Serial.println("clear - Clear screen");
+  Serial.println("help            - Show menu");
+  Serial.println("clear           - Clear screen");
+  Serial.println("registry        - Show app registry");
+  Serial.println("status          - Show system status");
+  Serial.println("heap            - Show heap memory");
   Serial.println();
   Serial.print("blackcapy> ");
 }
@@ -77,15 +80,17 @@ void menuHandleInput(const String& input) {
 
   int selectedId = command.toInt();
 
-  for (int i = 0; i < registeredToolCount; i++) {
-    if (registeredTools[i].id == selectedId) {
-      logInfo(String("Running tool: ") + registeredTools[i].name);
-      registeredTools[i].callback();
-      menuPrint();
-      return;
-    }
+  if (selectedId <= 0) {
+    logWarn("Invalid command: " + command);
+    menuPrint();
+    return;
   }
 
-  logWarn("Invalid command: " + command);
+  bool executed = appManagerRunById(selectedId);
+
+  if (!executed) {
+    logWarn("Invalid app id: " + String(selectedId));
+  }
+
   menuPrint();
 }
