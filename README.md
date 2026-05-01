@@ -1,3 +1,17 @@
+## Licensing
+
+Firmware and software:
+AGPL-3.0
+
+Hardware:
+CERN-OHL-S v2
+
+Documentation:
+CC BY-SA 4.0
+
+Branding and trademarks:
+Proprietary (see TRADEMARK.md)
+
 # BlackCapy
 
 BlackCapy is a professional modular embedded toolkit designed for hardware interaction, wireless analysis, automation and system diagnostics.

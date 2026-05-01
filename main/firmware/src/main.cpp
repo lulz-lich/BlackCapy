@@ -1,36 +1,52 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
+#include "blackcapy.h"
 #include "hardware_config.h"
 
-#include "blackcapy.h"
 #include "logger.h"
 #include "menu.h"
-#include "automation_engine.h"
-#include "module_manager.h"
-#include "ui.h"
 #include "storage.h"
-#include "log_viewer.h"
-#include "settings_app.h"
 #include "event_bus.h"
 #include "status_manager.h"
-#include "diagnostics_app.h"
-#include "uart_monitor.h"
+#include "tool_registry.h"
+#include "command_shell.h"
+
 #include "input_manager.h"
 #include "display_manager.h"
 #include "screen_manager.h"
-#include "navigation.h"
+#include "ui.h"
+#include "ui_controller.h"
+
+#include "app_manager.h"
+
+#include "automation_engine.h"
+#include "module_manager.h"
+
 #include "system_monitor.h"
 #include "wifi_scanner.h"
+#include "wifi_monitor.h"
+
 #include "gpio_console.h"
+#include "pwm_generator.h"
+#include "analog_reader.h"
+
 #include "ble_scanner.h"
+
 #include "i2c_scanner.h"
 #include "system_benchmark.h"
-#include "tool_registry.h"
-#include "command_shell.h"
+#include "timer_tool.h"
+#include "random_tool.h"
+
+#include "log_viewer.h"
+
+#include "settings_app.h"
+
+#include "diagnostics_app.h"
+
+#include "uart_monitor.h"
+
 #include "health_monitor.h"
-#include "ui_controller.h"
-#include "app_manager.h"
 
 void rebootDevice() {
   Serial.println();
@@ -43,114 +59,133 @@ AppEntry apps[] = {
   {
     TOOL_SYSTEM_MONITOR,
     "System Monitor",
+    "system",
     "Shows device, memory, chip and uptime information",
     runSystemMonitor
   },
   {
     TOOL_WIFI_SCANNER,
     "WiFi Scanner",
+    "wireless",
     "Scans nearby Wi-Fi networks and prints technical data",
     runWiFiScanner
   },
   {
     TOOL_GPIO_CONSOLE,
     "GPIO Console",
+    "hardware",
     "Runs basic GPIO status LED output test",
     runGPIOConsole
   },
   {
     TOOL_MODULE_MANAGER,
     "Module Manager",
+    "modules",
     "Scans expansion interfaces and detects connected modules",
     runModuleManager
   },
   {
     TOOL_BLE_SCANNER,
     "BLE Scanner",
+    "wireless",
     "Scans nearby BLE devices",
     runBLEScanner
   },
   {
     TOOL_I2C_SCANNER,
     "I2C Scanner",
+    "hardware",
     "Scans I2C bus for devices",
     runI2CScanner
   },
   {
     TOOL_BENCHMARK,
     "System Benchmark",
+    "system",
     "Runs CPU and memory performance test",
     runSystemBenchmark
   },
   {
     TOOL_AUTOMATION_ENGINE,
     "Automation Engine",
+    "automation",
     "Shows loaded automation rules and runtime status",
     runAutomationEngine
   },
   {
     TOOL_LOG_VIEWER,
     "Log Viewer",
+    "system",
     "Shows recent system events and runtime messages",
     runLogViewer
   },
   {
     TOOL_SETTINGS,
     "Settings",
+    "system",
     "Shows and saves BlackCapy runtime settings",
     runSettingsApp
   },
   {
     TOOL_DIAGNOSTICS,
     "Diagnostics",
+    "system",
     "Runs system health checks and runtime diagnostics",
     runDiagnosticsApp
   },
   {
     TOOL_UART_MONITOR,
     "UART Monitor",
+    "hardware",
     "Listens to UART2 RX data for a short diagnostic session",
     runUARTMonitor
   },
   {
-  TOOL_HEALTH_MONITOR,
-  "Health Monitor",
-  "Shows runtime health and memory status",
-  runHealthMonitor
+    TOOL_HEALTH_MONITOR,
+    "Health Monitor",
+    "system",
+    "Shows runtime health and memory status",
+    runHealthMonitor
   },
   {
-  TOOL_WIFI_MONITOR,
-  "WiFi Monitor",
-  "Monitors signal strength in real-time",
-  runWiFiMonitor
+    TOOL_WIFI_MONITOR,
+    "WiFi Monitor",
+    "wireless",
+    "Monitors signal strength in real-time",
+    runWiFiMonitor
   },
   {
     TOOL_PWM_GENERATOR,
     "PWM Generator",
+    "hardware",
     "Generates PWM signal on GPIO",
     runPWMGenerator
   },
   {
     TOOL_ANALOG_READER,
     "Analog Reader",
+    "hardware",
     "Reads ADC values from input pin",
     runAnalogReader
   },
   {
     TOOL_TIMER,
     "Timer Tool",
+    "system",
     "Measures execution time",
     runTimerTool
   },
   {
     TOOL_RANDOM,
     "Random Generator",
+    "system",
     "Generates random values",
     runRandomTool
   },
   {
     TOOL_REBOOT,
     "Reboot",
+    "system",
     "Restarts the device",
     rebootDevice
   }
