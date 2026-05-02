@@ -95,42 +95,6 @@ assets/
 
 ---
 
-## Build & Upload
-
-cd main/firmware
-platformio run
-platformio run --target upload
-
----
-
-## Serial Monitor
-
-platformio device monitor
-
-Baud rate: 115200
-
----
-
-## Usage
-
-After boot:
-
-blackcapy>
-
-Commands:
-
-* Type a number → execute tool
-* help → show menu
-* clear → clear screen
-
-Example:
-
-1 → System Monitor
-2 → WiFi Scanner
-3 → GPIO Console
-
----
-
 ## Architecture
 
 Firmware Layer
@@ -244,7 +208,7 @@ It is built not just as a tool, but as a system capable of evolving with new har
 
 ## Status
 
-Phase: Core Firmware (Stable Base)
+Phase: Core Firmware and tools (Stable Base)
 
 ---
 

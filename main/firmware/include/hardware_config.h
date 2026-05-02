@@ -36,4 +36,46 @@
 #define SPI_SCK_PIN 18
 #define SPI_CS_PIN 5
 
+// SPI for microSD
+
+#define SPI_MOSI_PIN 23
+#define SPI_MISO_PIN 19
+#define SPI_SCK_PIN 18
+#define SPI_CS_PIN 5
+
+// IR
+#define IR_RX_PIN 34
+#define IR_TX_PIN 4
+
+// RFID RC522
+#define RFID_CS_PIN 15
+#define RFID_RST_PIN 27
+
+// NFC PN532
+#define NFC_IRQ_PIN 32
+#define NFC_RST_PIN 33
+
+// GPS
+#define GPS_RX_PIN 16
+#define GPS_TX_PIN 17
+#define GPS_BAUDRATE 9600
+
+// LoRa SX127x
+#define LORA_CS_PIN 5
+#define LORA_DIO0_PIN 26
+#define LORA_RST_PIN 14
+#define LORA_DIO1_PIN 35
+#define LORA_FREQUENCY 915.0
+
+// RF CC1101
+#define RF_CS_PIN 13
+#define RF_GDO0_PIN 25
+#define RF_RST_PIN 12
+#define RF_GDO2_PIN 39
+#define RF_FREQUENCY 433.92
+
+// CAN MCP2515
+#define CAN_CS_PIN 2
+#define CAN_SPEED CAN_500KBPS
+
 #endif

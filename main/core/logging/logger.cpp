@@ -1,4 +1,7 @@
 #include "logger.h"
+#include "filesystem.h"
+
+static bool fileLoggingEnabled = false;
 
 static const char* levelToString(LogLevel level) {
   switch (level) {
@@ -14,14 +17,38 @@ void loggerInit() {
   logInfo("Logger initialized.");
 }
 
+void loggerEnableFileLogging(bool enabled) {
+  fileLoggingEnabled = enabled;
+
+  if (enabled) {
+    logInfo("File logging enabled.");
+  } else {
+    logWarn("File logging disabled.");
+  }
+}
+
+bool loggerFileLoggingEnabled() {
+  return fileLoggingEnabled;
+}
+
 void logMessage(LogLevel level, const String& message) {
-  Serial.print("[");
-  Serial.print(millis());
-  Serial.print(" ms] ");
-  Serial.print("[");
-  Serial.print(levelToString(level));
-  Serial.print("] ");
-  Serial.println(message);
+  String line = "";
+
+  line += "[";
+  line += String(millis());
+  line += " ms] ";
+
+  line += "[";
+  line += levelToString(level);
+  line += "] ";
+
+  line += message;
+
+  Serial.println(line);
+
+  if (fileLoggingEnabled && fileSystemAvailable()) {
+    fileSystemAppend("/logs/system.log", line + "\n");
+  }
 }
 
 void logInfo(const String& message) {

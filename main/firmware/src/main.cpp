@@ -41,11 +41,18 @@
 #include "log_viewer.h"
 
 #include "settings_app.h"
-
+#include "ir_console.h"
+#include "rf_analyzer.h"
+#include "rfid_reader.h"
+#include "nfc_reader.h"
+#include "can_monitor.h"
+#include "gps_status.h"
+#include "lora_status.h"
 #include "diagnostics_app.h"
-
+#include "storage_policy.h"
+#include "storage_status.h"
 #include "uart_monitor.h"
-
+#include "filesystem.h"
 #include "health_monitor.h"
 
 void rebootDevice() {
@@ -61,6 +68,8 @@ AppEntry apps[] = {
     "System Monitor",
     "system",
     "Shows device, memory, chip and uptime information",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
     runSystemMonitor
   },
   {
@@ -68,6 +77,8 @@ AppEntry apps[] = {
     "WiFi Scanner",
     "wireless",
     "Scans nearby Wi-Fi networks and prints technical data",
+    APP_PERMISSION_WIFI,
+    APP_STATUS_STABLE,
     runWiFiScanner
   },
   {
@@ -75,6 +86,8 @@ AppEntry apps[] = {
     "GPIO Console",
     "hardware",
     "Runs basic GPIO status LED output test",
+    APP_PERMISSION_GPIO,
+    APP_STATUS_STABLE,
     runGPIOConsole
   },
   {
@@ -82,6 +95,8 @@ AppEntry apps[] = {
     "Module Manager",
     "modules",
     "Scans expansion interfaces and detects connected modules",
+    APP_PERMISSION_MODULES,
+    APP_STATUS_STABLE,
     runModuleManager
   },
   {
@@ -89,6 +104,8 @@ AppEntry apps[] = {
     "BLE Scanner",
     "wireless",
     "Scans nearby BLE devices",
+    APP_PERMISSION_BLE,
+    APP_STATUS_EXPERIMENTAL,
     runBLEScanner
   },
   {
@@ -96,13 +113,17 @@ AppEntry apps[] = {
     "I2C Scanner",
     "hardware",
     "Scans I2C bus for devices",
+    APP_PERMISSION_GPIO,
+    APP_STATUS_STABLE,
     runI2CScanner
   },
   {
     TOOL_BENCHMARK,
     "System Benchmark",
     "system",
-    "Runs CPU and memory performance test",
+    "Runs CPU and memory performance tests",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
     runSystemBenchmark
   },
   {
@@ -110,6 +131,8 @@ AppEntry apps[] = {
     "Automation Engine",
     "automation",
     "Shows loaded automation rules and runtime status",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_EXPERIMENTAL,
     runAutomationEngine
   },
   {
@@ -117,6 +140,8 @@ AppEntry apps[] = {
     "Log Viewer",
     "system",
     "Shows recent system events and runtime messages",
+    APP_PERMISSION_STORAGE,
+    APP_STATUS_STABLE,
     runLogViewer
   },
   {
@@ -124,6 +149,8 @@ AppEntry apps[] = {
     "Settings",
     "system",
     "Shows and saves BlackCapy runtime settings",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
     runSettingsApp
   },
   {
@@ -131,13 +158,17 @@ AppEntry apps[] = {
     "Diagnostics",
     "system",
     "Runs system health checks and runtime diagnostics",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
     runDiagnosticsApp
   },
   {
     TOOL_UART_MONITOR,
     "UART Monitor",
     "hardware",
-    "Listens to UART2 RX data for a short diagnostic session",
+    "Listens to UART RX data for diagnostics",
+    APP_PERMISSION_GPIO,
+    APP_STATUS_STABLE,
     runUARTMonitor
   },
   {
@@ -145,53 +176,140 @@ AppEntry apps[] = {
     "Health Monitor",
     "system",
     "Shows runtime health and memory status",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
     runHealthMonitor
   },
   {
     TOOL_WIFI_MONITOR,
     "WiFi Monitor",
     "wireless",
-    "Monitors signal strength in real-time",
+    "Monitors Wi-Fi signal strength in real time",
+    APP_PERMISSION_WIFI,
+    APP_STATUS_STABLE,
     runWiFiMonitor
   },
   {
     TOOL_PWM_GENERATOR,
     "PWM Generator",
     "hardware",
-    "Generates PWM signal on GPIO",
+    "Generates PWM signals on GPIO pins",
+    APP_PERMISSION_GPIO,
+    APP_STATUS_STABLE,
     runPWMGenerator
   },
   {
     TOOL_ANALOG_READER,
     "Analog Reader",
     "hardware",
-    "Reads ADC values from input pin",
+    "Reads analog values from ADC pins",
+    APP_PERMISSION_GPIO,
+    APP_STATUS_STABLE,
     runAnalogReader
   },
   {
     TOOL_TIMER,
     "Timer Tool",
     "system",
-    "Measures execution time",
+    "Measures execution time and delays",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
     runTimerTool
   },
   {
     TOOL_RANDOM,
     "Random Generator",
     "system",
-    "Generates random values",
+    "Generates hardware random values",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
     runRandomTool
   },
+  {
+    TOOL_STORAGE_STATUS,
+    "Storage Status",
+    "system",
+    "Shows internal and microSD storage policy",
+    APP_PERMISSION_STORAGE,
+    APP_STATUS_STABLE,
+    runStorageStatus
+  },
+  {
+  TOOL_IR_CONSOLE,
+  "IR Console",
+  "modules",
+  "Reads infrared signals from an IR receiver",
+  APP_PERMISSION_IR,
+  APP_STATUS_EXPERIMENTAL,
+  runIRConsole
+},
+{
+  TOOL_RF_ANALYZER,
+  "RF Analyzer",
+  "modules",
+  "Initializes CC1101 and samples RF RSSI",
+  APP_PERMISSION_RF,
+  APP_STATUS_EXPERIMENTAL,
+  runRFAnalyzer
+},
+{
+  TOOL_RFID_READER,
+  "RFID Reader",
+  "modules",
+  "Reads RFID card UID using RC522",
+  APP_PERMISSION_RFID,
+  APP_STATUS_EXPERIMENTAL,
+  runRFIDReader
+},
+{
+  TOOL_NFC_READER,
+  "NFC Reader",
+  "modules",
+  "Reads NFC tag UID using PN532",
+  APP_PERMISSION_NFC,
+  APP_STATUS_EXPERIMENTAL,
+  runNFCReader
+},
+{
+  TOOL_CAN_MONITOR,
+  "CAN Monitor",
+  "modules",
+  "Reads CAN frames using MCP2515",
+  APP_PERMISSION_CAN,
+  APP_STATUS_EXPERIMENTAL,
+  runCANMonitor
+},
+{
+  TOOL_GPS_STATUS,
+  "GPS Status",
+  "modules",
+  "Reads GPS position and satellite status",
+  APP_PERMISSION_GPS,
+  APP_STATUS_EXPERIMENTAL,
+  runGPSStatus
+},
+{
+  TOOL_LORA_STATUS,
+  "LoRa Status",
+  "modules",
+  "Initializes LoRa module and reads RSSI",
+  APP_PERMISSION_LORA,
+  APP_STATUS_EXPERIMENTAL,
+  runLoRaStatus
+},
   {
     TOOL_REBOOT,
     "Reboot",
     "system",
     "Restarts the device",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
     rebootDevice
   }
 };
 
 const int appCount = sizeof(apps) / sizeof(apps[0]);
+
 
 void setup() {
   Serial.begin(BLACKCAPY_SERIAL_BAUD);
@@ -205,6 +323,11 @@ void setup() {
 
   loggerInit();
   storageInit();
+  fileSystemInit();
+  storagePolicyInit();
+  if (fileSystemAvailable()) {
+  loggerEnableFileLogging(true);
+}
   eventBusInit();
   statusInit();
   registryInit();

@@ -3,14 +3,19 @@
 
 #include <Arduino.h>
 
+#include "app_contract.h"
+
 struct AppEntry {
   int id;
   const char* name;
   const char* category;
   const char* description;
+  int permissions;
+  AppStatus status;
   void (*run)();
 };
-
+bool appManagerIsRunnable(AppEntry* app);
+void appManagerPrintApp(AppEntry* app);
 void appManagerInit(AppEntry* apps, int count);
 
 int appManagerCount();

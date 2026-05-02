@@ -11,7 +11,12 @@ enum LogLevel {
 };
 
 void loggerInit();
+
+void loggerEnableFileLogging(bool enabled);
+bool loggerFileLoggingEnabled();
+
 void logMessage(LogLevel level, const String& message);
+
 void logInfo(const String& message);
 void logWarn(const String& message);
 void logError(const String& message);

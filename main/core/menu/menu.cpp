@@ -35,12 +35,7 @@ void menuPrint() {
       continue;
     }
 
-    Serial.print("[");
-    Serial.print(app->id);
-    Serial.print("] ");
-    Serial.print(app->name);
-    Serial.print(" - ");
-    Serial.println(app->description);
+    appManagerPrintApp(app);
   }
 
   Serial.println();

@@ -76,10 +76,10 @@ void appManagerPrevious() {
 }
 
 static void runApp(AppEntry* app) {
-  if (app == nullptr || app->run == nullptr) {
-    logError("Invalid app execution request.");
-    return;
-  }
+  if (!appManagerIsRunnable(app)) {
+  logError("App cannot be executed.");
+  return;
+}
 
   statusSet(STATUS_RUNNING_TOOL);
   eventEmit(EVENT_TOOL_STARTED, app->name);
@@ -111,4 +111,40 @@ bool appManagerRunById(int id) {
 
 int appManagerSelectedIndex() {
   return selectedAppIndex;
+}
+bool appManagerIsRunnable(AppEntry* app) {
+  if (app == nullptr) {
+    return false;
+  }
+
+  if (app->status == APP_STATUS_DISABLED) {
+    return false;
+  }
+
+  if (app->run == nullptr) {
+    return false;
+  }
+
+  return true;
+}
+
+void appManagerPrintApp(AppEntry* app) {
+  if (app == nullptr) {
+    return;
+  }
+
+  Serial.print("[");
+  Serial.print(app->id);
+  Serial.print("] ");
+
+  Serial.print(app->name);
+  Serial.print(" | ");
+  Serial.print(app->category);
+  Serial.print(" | ");
+  Serial.print(appStatusToString(app->status));
+  Serial.print(" | perm: ");
+  Serial.println(appPermissionToString(app->permissions));
+
+  Serial.print("    ");
+  Serial.println(app->description);
 }
