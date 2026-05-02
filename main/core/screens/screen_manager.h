@@ -11,10 +11,11 @@ enum ScreenId {
 };
 
 void screenManagerInit();
+
 void screenSet(ScreenId screen);
 ScreenId screenGet();
-void screenRender();
 
+void screenRender();
 void screenRenderTools();
 
 #endif

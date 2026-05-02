@@ -3,10 +3,48 @@
 #include "logger.h"
 #include "event_bus.h"
 #include "status_manager.h"
+#include "module_manager.h"
+#include "module_manifest.h"
 
 static AppEntry* registeredApps = nullptr;
 static int registeredAppCount = 0;
 static int selectedAppIndex = 0;
+
+static bool appRequiredModuleAvailable(AppEntry* app) {
+  if (app == nullptr) {
+    return false;
+  }
+
+  if (app->permissions & APP_PERMISSION_IR) {
+    return moduleManagerHas(MODULE_IR);
+  }
+
+  if (app->permissions & APP_PERMISSION_RF) {
+    return moduleManagerHas(MODULE_RF);
+  }
+
+  if (app->permissions & APP_PERMISSION_RFID) {
+    return moduleManagerHas(MODULE_RFID);
+  }
+
+  if (app->permissions & APP_PERMISSION_NFC) {
+    return moduleManagerHas(MODULE_NFC);
+  }
+
+  if (app->permissions & APP_PERMISSION_CAN) {
+    return moduleManagerHas(MODULE_CAN);
+  }
+
+  if (app->permissions & APP_PERMISSION_GPS) {
+    return moduleManagerHas(MODULE_GPS);
+  }
+
+  if (app->permissions & APP_PERMISSION_LORA) {
+    return moduleManagerHas(MODULE_LORA);
+  }
+
+  return true;
+}
 
 void appManagerInit(AppEntry* apps, int count) {
   registeredApps = apps;
@@ -19,6 +57,10 @@ void appManagerInit(AppEntry* apps, int count) {
 
 int appManagerCount() {
   return registeredAppCount;
+}
+
+int appManagerSelectedIndex() {
+  return selectedAppIndex;
 }
 
 AppEntry* appManagerGet(int index) {
@@ -75,11 +117,78 @@ void appManagerPrevious() {
   }
 }
 
-static void runApp(AppEntry* app) {
-  if (!appManagerIsRunnable(app)) {
-  logError("App cannot be executed.");
-  return;
+bool appManagerIsRunnable(AppEntry* app) {
+  if (app == nullptr) {
+    return false;
+  }
+
+  if (app->status == APP_STATUS_DISABLED) {
+    return false;
+  }
+
+  if (app->run == nullptr) {
+    return false;
+  }
+
+  if (!appRequiredModuleAvailable(app)) {
+    return false;
+  }
+
+  return true;
 }
+
+void appManagerPrintApp(AppEntry* app) {
+  if (app == nullptr) {
+    return;
+  }
+
+  Serial.print("[");
+  Serial.print(app->id);
+  Serial.print("] ");
+
+  Serial.print(app->name);
+  Serial.print(" | ");
+  Serial.print(app->category);
+  Serial.print(" | ");
+  Serial.print(appStatusToString(app->status));
+  Serial.print(" | perm: ");
+  Serial.print(appPermissionToString(app->permissions));
+
+  if (!appManagerIsRunnable(app)) {
+    Serial.print(" | LOCKED");
+  }
+
+  Serial.println();
+
+  Serial.print("    ");
+  Serial.println(app->description);
+}
+
+static void runApp(AppEntry* app) {
+  if (app == nullptr) {
+    logError("Invalid app execution request.");
+    return;
+  }
+
+  if (app->status == APP_STATUS_DISABLED) {
+    logWarn(String("App disabled: ") + app->name);
+    return;
+  }
+
+  if (app->run == nullptr) {
+    logError(String("App has no run function: ") + app->name);
+    return;
+  }
+
+  if (!appRequiredModuleAvailable(app)) {
+    logWarn(String("Required module not detected for app: ") + app->name);
+
+    Serial.println();
+    Serial.println("This app requires an external module.");
+    Serial.println("Connect the module or enable development mock detection.");
+
+    return;
+  }
 
   statusSet(STATUS_RUNNING_TOOL);
   eventEmit(EVENT_TOOL_STARTED, app->name);
@@ -107,44 +216,4 @@ bool appManagerRunById(int id) {
 
   runApp(app);
   return true;
-}
-
-int appManagerSelectedIndex() {
-  return selectedAppIndex;
-}
-bool appManagerIsRunnable(AppEntry* app) {
-  if (app == nullptr) {
-    return false;
-  }
-
-  if (app->status == APP_STATUS_DISABLED) {
-    return false;
-  }
-
-  if (app->run == nullptr) {
-    return false;
-  }
-
-  return true;
-}
-
-void appManagerPrintApp(AppEntry* app) {
-  if (app == nullptr) {
-    return;
-  }
-
-  Serial.print("[");
-  Serial.print(app->id);
-  Serial.print("] ");
-
-  Serial.print(app->name);
-  Serial.print(" | ");
-  Serial.print(app->category);
-  Serial.print(" | ");
-  Serial.print(appStatusToString(app->status));
-  Serial.print(" | perm: ");
-  Serial.println(appPermissionToString(app->permissions));
-
-  Serial.print("    ");
-  Serial.println(app->description);
 }

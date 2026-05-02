@@ -26,7 +26,7 @@
 #include "system_monitor.h"
 #include "wifi_scanner.h"
 #include "wifi_monitor.h"
-
+#include "module_id_diagnostics.h"
 #include "gpio_console.h"
 #include "pwm_generator.h"
 #include "analog_reader.h"
@@ -39,7 +39,8 @@
 #include "random_tool.h"
 
 #include "log_viewer.h"
-
+#include "module_manifest.h"
+#include "module_manifest_viewer.h"
 #include "settings_app.h"
 #include "ir_console.h"
 #include "rf_analyzer.h"
@@ -54,6 +55,7 @@
 #include "uart_monitor.h"
 #include "filesystem.h"
 #include "health_monitor.h"
+#include "capture_viewer.h"
 
 void rebootDevice() {
   Serial.println();
@@ -242,61 +244,79 @@ AppEntry apps[] = {
   APP_PERMISSION_IR,
   APP_STATUS_EXPERIMENTAL,
   runIRConsole
-},
-{
-  TOOL_RF_ANALYZER,
-  "RF Analyzer",
-  "modules",
-  "Initializes CC1101 and samples RF RSSI",
-  APP_PERMISSION_RF,
-  APP_STATUS_EXPERIMENTAL,
-  runRFAnalyzer
-},
-{
-  TOOL_RFID_READER,
-  "RFID Reader",
-  "modules",
-  "Reads RFID card UID using RC522",
-  APP_PERMISSION_RFID,
-  APP_STATUS_EXPERIMENTAL,
-  runRFIDReader
-},
-{
-  TOOL_NFC_READER,
-  "NFC Reader",
-  "modules",
-  "Reads NFC tag UID using PN532",
-  APP_PERMISSION_NFC,
-  APP_STATUS_EXPERIMENTAL,
-  runNFCReader
-},
-{
-  TOOL_CAN_MONITOR,
-  "CAN Monitor",
-  "modules",
-  "Reads CAN frames using MCP2515",
-  APP_PERMISSION_CAN,
-  APP_STATUS_EXPERIMENTAL,
-  runCANMonitor
-},
-{
-  TOOL_GPS_STATUS,
-  "GPS Status",
-  "modules",
-  "Reads GPS position and satellite status",
-  APP_PERMISSION_GPS,
-  APP_STATUS_EXPERIMENTAL,
-  runGPSStatus
-},
-{
-  TOOL_LORA_STATUS,
-  "LoRa Status",
-  "modules",
-  "Initializes LoRa module and reads RSSI",
-  APP_PERMISSION_LORA,
-  APP_STATUS_EXPERIMENTAL,
-  runLoRaStatus
-},
+  },
+  {
+    TOOL_RF_ANALYZER,
+    "RF Analyzer",
+    "modules",
+    "Initializes CC1101 and samples RF RSSI",
+    APP_PERMISSION_RF,
+    APP_STATUS_EXPERIMENTAL,
+    runRFAnalyzer
+  },
+  {
+    TOOL_RFID_READER,
+    "RFID Reader",
+    "modules",
+    "Reads RFID card UID using RC522",
+    APP_PERMISSION_RFID,
+    APP_STATUS_EXPERIMENTAL,
+    runRFIDReader
+  },
+  {
+    TOOL_NFC_READER,
+    "NFC Reader",
+    "modules",
+    "Reads NFC tag UID using PN532",
+    APP_PERMISSION_NFC,
+    APP_STATUS_EXPERIMENTAL,
+    runNFCReader
+  },
+  {
+    TOOL_CAN_MONITOR,
+    "CAN Monitor",
+    "modules",
+    "Reads CAN frames using MCP2515",
+    APP_PERMISSION_CAN,
+    APP_STATUS_EXPERIMENTAL,
+    runCANMonitor
+  },
+  {
+    TOOL_GPS_STATUS,
+    "GPS Status",
+    "modules",
+    "Reads GPS position and satellite status",
+    APP_PERMISSION_GPS,
+    APP_STATUS_EXPERIMENTAL,
+    runGPSStatus
+  },
+  {
+    TOOL_LORA_STATUS,
+    "LoRa Status",
+    "modules",
+    "Initializes LoRa module and reads RSSI",
+    APP_PERMISSION_LORA,
+    APP_STATUS_EXPERIMENTAL,
+    runLoRaStatus
+  },
+  {
+    TOOL_CAPTURE_VIEWER,
+    "Capture Viewer",
+    "system",
+    "Shows recent saved captures from microSD",
+    APP_PERMISSION_STORAGE,
+    APP_STATUS_STABLE,
+    runCaptureViewer
+  },
+  {
+    TOOL_MODULE_MANIFEST,
+    "Module Manifest",
+    "modules",
+    "Shows supported external module types and interfaces",
+    APP_PERMISSION_MODULES,
+    APP_STATUS_STABLE,
+    runModuleManifestViewer
+  },
   {
     TOOL_REBOOT,
     "Reboot",
@@ -331,7 +351,10 @@ void setup() {
   eventBusInit();
   statusInit();
   registryInit();
-
+  moduleManifestInit();
+  moduleManagerInit();
+  moduleManagerDetectMock();
+  moduleManagerDetectByADC();
   inputInit();
   displayInit();
   screenManagerInit();

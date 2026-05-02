@@ -25,23 +25,22 @@
 #define I2C_SDA_PIN 21
 #define I2C_SCL_PIN 22
 
-// UART expansion
-#define UART_RX_PIN 16
-#define UART_TX_PIN 17
-#define UART_BAUDRATE 9600
-
 // SPI
 #define SPI_MOSI_PIN 23
 #define SPI_MISO_PIN 19
 #define SPI_SCK_PIN 18
 #define SPI_CS_PIN 5
 
-// SPI for microSD
+// UART
+#define UART_RX_PIN 16
+#define UART_TX_PIN 17
+#define UART_BAUDRATE 9600
 
-#define SPI_MOSI_PIN 23
-#define SPI_MISO_PIN 19
-#define SPI_SCK_PIN 18
-#define SPI_CS_PIN 5
+// Native microSD
+#define SD_CS_PIN SPI_CS_PIN
+
+// Module detection
+#define MODULE_ID_ADC_PIN 36
 
 // IR
 #define IR_RX_PIN 34
