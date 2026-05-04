@@ -1,8 +1,6 @@
 #include <Arduino.h>
 
-#define UART_RX_PIN 16
-#define UART_TX_PIN 17
-#define UART_BAUD 9600
+#include "hardware_config.h"
 
 HardwareSerial BlackCapyUART(2);
 
@@ -10,10 +8,10 @@ void runUARTMonitor() {
   Serial.println();
   Serial.println("========== UART MONITOR ==========");
 
-  BlackCapyUART.begin(UART_BAUD, SERIAL_8N1, UART_RX_PIN, UART_TX_PIN);
+  BlackCapyUART.begin(UART_BAUDRATE, SERIAL_8N1, UART_RX_PIN, UART_TX_PIN);
 
   Serial.print("UART2 started at ");
-  Serial.print(UART_BAUD);
+  Serial.print(UART_BAUDRATE);
   Serial.println(" baud");
 
   Serial.print("RX: GPIO ");

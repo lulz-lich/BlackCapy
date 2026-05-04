@@ -60,6 +60,20 @@ void moduleManifestInit() {
   logInfo("Module manifest initialized.");
 }
 
+const ModuleManifest* moduleManifestGet(ModuleType type) {
+  for (int i = 0; i < manifestCount; i++) {
+    if (manifests[i].type == type) {
+      return &manifests[i];
+    }
+  }
+
+  return nullptr;
+}
+
+bool moduleManifestIsSupported(ModuleType type) {
+  return moduleManifestGet(type) != nullptr;
+}
+
 const char* moduleTypeToString(ModuleType type) {
   switch (type) {
     case MODULE_IR:
@@ -107,7 +121,9 @@ void moduleManifestPrint(ModuleManifest manifest) {
   Serial.print(" | interface: ");
   Serial.print(manifest.interface);
   Serial.print(" | status: ");
-  Serial.println(manifest.status);
+  Serial.print(manifest.status);
+  Serial.print(" | required: ");
+  Serial.println(manifest.requiredForApp ? "yes" : "no");
 }
 
 void moduleManifestPrintAll() {

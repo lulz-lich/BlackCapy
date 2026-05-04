@@ -3,5 +3,6 @@
 
 void automationInit();
 void runAutomationEngine();
+bool automationExecuteScript(const char* scriptName);
 
 #endif

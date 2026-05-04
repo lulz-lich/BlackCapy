@@ -1,6 +1,8 @@
 #include <Arduino.h>
 
 #include "filesystem.h"
+#include "storage_policy.h"
+#include "capture_writer.h"
 #include "ui.h"
 #include "logger.h"
 
@@ -36,13 +38,9 @@ void runCaptureViewer() {
     return;
   }
 
-  printCaptureFile("/captures/ir.log");
-  printCaptureFile("/captures/rf.log");
-  printCaptureFile("/captures/rfid.log");
-  printCaptureFile("/captures/nfc.log");
-  printCaptureFile("/captures/can.log");
-  printCaptureFile("/captures/gps.log");
-  printCaptureFile("/captures/lora.log");
+  for (int i = 0; i < captureCategoryCount(); i++) {
+    printCaptureFile(capturePathFor(captureCategoryAt(i)));
+  }
 
   Serial.println("====================================");
 }

@@ -1,22 +1,19 @@
 #include <Arduino.h>
 
-#define PWM_PIN 18
-#define PWM_CHANNEL 0
-#define PWM_FREQ 5000
-#define PWM_RESOLUTION 8
+#include "hardware_config.h"
 
 void runPWMGenerator() {
   Serial.println();
   Serial.println("========== PWM GENERATOR ==========");
 
-  ledcSetup(PWM_CHANNEL, PWM_FREQ, PWM_RESOLUTION);
-  ledcAttachPin(PWM_PIN, PWM_CHANNEL);
+  ledcSetup(PWM_TEST_CHANNEL, PWM_TEST_FREQUENCY, PWM_TEST_RESOLUTION);
+  ledcAttachPin(PWM_TEST_PIN, PWM_TEST_CHANNEL);
 
   Serial.print("Output on GPIO ");
-  Serial.println(PWM_PIN);
+  Serial.println(PWM_TEST_PIN);
 
   for (int duty = 0; duty <= 255; duty += 25) {
-    ledcWrite(PWM_CHANNEL, duty);
+    ledcWrite(PWM_TEST_CHANNEL, duty);
 
     Serial.print("Duty: ");
     Serial.println(duty);
@@ -24,7 +21,7 @@ void runPWMGenerator() {
     delay(300);
   }
 
-  ledcWrite(PWM_CHANNEL, 0);
+  ledcWrite(PWM_TEST_CHANNEL, 0);
 
   Serial.println("PWM test completed.");
   Serial.println("===================================");

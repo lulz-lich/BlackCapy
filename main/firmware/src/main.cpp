@@ -9,7 +9,6 @@
 #include "storage.h"
 #include "event_bus.h"
 #include "status_manager.h"
-#include "tool_registry.h"
 #include "command_shell.h"
 
 #include "input_manager.h"
@@ -44,6 +43,7 @@
 #include "settings_app.h"
 #include "ir_console.h"
 #include "rf_analyzer.h"
+#include "subghz_scanner.h"
 #include "rfid_reader.h"
 #include "nfc_reader.h"
 #include "can_monitor.h"
@@ -100,6 +100,15 @@ AppEntry apps[] = {
     APP_PERMISSION_MODULES,
     APP_STATUS_STABLE,
     runModuleManager
+  },
+  {
+    TOOL_MODULE_ID_DIAGNOSTICS,
+    "Module ID Diagnostics",
+    "modules",
+    "Reads ADC ID and verifies module resistor range",
+    APP_PERMISSION_MODULES,
+    APP_STATUS_EXPERIMENTAL,
+    runModuleIDDiagnostics
   },
   {
     TOOL_BLE_SCANNER,
@@ -255,6 +264,15 @@ AppEntry apps[] = {
     runRFAnalyzer
   },
   {
+    TOOL_SUBGHZ_SCANNER,
+    "SubGHz Scanner",
+    "modules",
+    "Performs a narrow Sub-GHz scan and logs discovered packets",
+    APP_PERMISSION_RF,
+    APP_STATUS_EXPERIMENTAL,
+    runSubGHzScanner
+  },
+  {
     TOOL_RFID_READER,
     "RFID Reader",
     "modules",
@@ -346,11 +364,10 @@ void setup() {
   fileSystemInit();
   storagePolicyInit();
   if (fileSystemAvailable()) {
-  loggerEnableFileLogging(true);
-}
+    loggerEnableFileLogging(true);
+  }
   eventBusInit();
   statusInit();
-  registryInit();
   moduleManifestInit();
   moduleManagerInit();
   moduleManagerDetectMock();

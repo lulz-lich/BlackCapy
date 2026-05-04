@@ -36,6 +36,14 @@
 #define UART_TX_PIN 17
 #define UART_BAUDRATE 9600
 
+// General hardware tool defaults
+#define PWM_TEST_PIN 18
+#define PWM_TEST_CHANNEL 0
+#define PWM_TEST_FREQUENCY 5000
+#define PWM_TEST_RESOLUTION 8
+
+#define ANALOG_TEST_PIN 34
+
 // Native microSD
 #define SD_CS_PIN SPI_CS_PIN
 

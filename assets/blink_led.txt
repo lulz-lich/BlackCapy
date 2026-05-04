@@ -1,0 +1,31 @@
+# Sample automation script: LED Blinker
+# This script blinks an LED connected to GPIO 5
+
+print Starting LED blink demo
+
+# Set GPIO 5 as output and turn it on
+gpio set 5 high
+print LED ON
+delay 1000
+
+# Turn LED off
+gpio set 5 low
+print LED OFF
+delay 1000
+
+# Blink 3 times
+gpio set 5 high
+delay 500
+gpio set 5 low
+delay 500
+
+gpio set 5 high
+delay 500
+gpio set 5 low
+delay 500
+
+gpio set 5 high
+delay 500
+gpio set 5 low
+
+print LED blink demo completed

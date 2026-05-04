@@ -1,205 +1,206 @@
 # BlackCapy
 
-BlackCapy is a professional modular embedded toolkit designed for hardware interaction, wireless analysis, automation and system diagnostics.
+BlackCapy is a professional modular embedded toolkit for hardware interaction, wireless analysis, automation, structured logging, native microSD storage and expansion modules.
 
-This project targets ESP32-based devices and is built with a modular architecture to support expansion modules, automation workflows and future advanced capabilities.
+The project targets ESP32-based portable devices with a 320x240 display, physical navigation buttons and an expansion bus for specialized hardware modules.
 
----
-
-## Overview
-
-BlackCapy is not an educational toy.
-
-It is a portable technical platform focused on:
-
-* Wireless environment analysis
-* Hardware interfacing (GPIO, I2C, SPI, UART)
-* Automation execution
-* Structured logging
-* Modular expansion
-
-The system is designed to evolve into a fully featured portable toolkit.
+BlackCapy is inspired by Arch Linux principles: freedom, modularity, control and customization. It should stay powerful and transparent without becoming unnecessarily niche or difficult to use.
 
 ---
 
-## Current Features
+## Current Focus
 
-### Core System
+BlackCapy is currently in the core firmware consolidation phase.
 
-* Modular firmware architecture
-* Serial-based command interface
-* Tool registry system
-* Structured logging with timestamps
-* Menu system with command parsing
+The immediate goals are:
 
-### Tools Implemented
+* Keep `AppManager` as the single source of truth for apps
+* Keep `ModuleManager` and `ModuleManifest` responsible for external modules
+* Keep `Logger` for system behavior and `CaptureWriter` for operational evidence
+* Treat microSD as native onboard storage, not as an expansion module
+* Preserve PlatformIO compatibility with `src_dir = main`
+* Keep serial as a temporary debug interface while the physical UI matures
 
-* System Monitor
-  Displays chip info, memory usage, uptime and system data
+---
 
-* WiFi Scanner
-  Scans nearby networks with RSSI, channel, encryption and BSSID
+## Implemented Foundation
 
-* GPIO Console
-  Basic GPIO control and testing (status LED)
+### Core
 
-* Module Manager
-  Scans I2C bus and prepares expansion module interface
+* AppManager registration, selection, execution and runnable checks
+* AppContract permissions and app status metadata
+* ModuleManifest for supported external module types
+* ModuleManager with mock and ADC resistor-ID detection
+* CaptureWriter for `/captures/*.log` operational evidence
+* Logger with optional `/logs/system.log` output
+* FileSystem initialization for native microSD directories
+* StoragePolicy separating internal Preferences from operational microSD data
+* InputManager for debounced physical buttons
+* DisplayManager with serial rendering fallback
+* ScreenManager for Home, Tools, Status and Settings
+* UIController connecting physical input to screens and AppManager
+* EventBus, StatusManager and AutomationEngine base
 
-* Automation Engine
-  Base structure for rule-based execution
+### Apps
 
-* Reboot Tool
-  Software reset via command
+BlackCapy currently registers apps through `main/firmware/src/main.cpp` using `AppEntry`.
+
+Implemented or scaffolded app areas include:
+
+* System, diagnostics, health and settings
+* WiFi and BLE
+* GPIO, PWM, analog, I2C and UART
+* Storage, logs and captures
+* Automation
+* Modules and module diagnostics
+* IR, RF/Sub-GHz, RFID, NFC, CAN, GPS and LoRa
+
+Apps that collect operational evidence use `CaptureWriter`; system behavior uses `Logger`.
 
 ---
 
 ## Project Structure
 
-main/
-├── firmware/
-├── core/
-├── apps/
+```txt
+blackcapy/
+├── platformio.ini
+├── README.md
+├── usage.md
+├── docs/
+├── hardware/
+├── scripts/
+├── tests/
+├── assets/
+└── main/
+    ├── firmware/
+    ├── core/
+    └── apps/
+```
 
-hardware/
-├── schematics/
-├── pcb/
-├── modules/
+Important paths:
 
-scripts/
-tests/
-docs/
-assets/
+```txt
+main/firmware/src/main.cpp          App registration and boot flow
+main/core/app_manager/             Single source of truth for apps
+main/core/module_manager/          Runtime external module detection
+main/core/module_manifest/         Supported module definitions
+main/core/capture/                 Operational evidence writer
+main/core/logging/                 System logger
+main/core/filesystem/              Native microSD filesystem
+```
 
 ---
 
-## Requirements
+## Build
+
+Requirements:
 
 * ESP32 development board
-* PlatformIO (recommended) or Arduino IDE
+* PlatformIO CLI or VSCode PlatformIO extension
 * USB cable
 
----
+Build:
 
-## Architecture
+```bash
+scripts/build.sh
+```
 
-Firmware Layer
-Core Services
-Applications (Tools)
-Expansion Modules
+`build.sh` runs `scripts/validate_apps.py` before PlatformIO so AppManager registration problems fail early.
 
-### Core Components
+Asset and script validation:
 
-* Logger
-* Menu System
-* Automation Engine
-* Module Manager
+```bash
+scripts/validate_assets.py
+```
 
----
+Documentation validation:
 
-## Expansion Vision
+```bash
+scripts/validate_docs.py
+```
 
-* BLE Scanner
-* RF Analyzer
-* IR Transceiver
-* NFC/RFID
-* SD card logging
-* Display + physical controls
-* Scriptable automation
-* AI-assisted analysis
+Architecture boundary validation:
 
----
+```bash
+scripts/validate_architecture.py
+```
 
-## Design Principles
+PlatformIO include-path validation:
 
-* Modular first
-* Performance over aesthetics
-* Extensibility over shortcuts
-* Clear separation of concerns
+```bash
+scripts/validate_platformio.py
+```
 
----
+Hardware pin conflict report:
 
-## Future Vision
+```bash
+scripts/check_hardware_config.py
+```
 
-BlackCapy is designed to evolve into a fully featured professional portable toolkit for hardware interaction, wireless analysis and automated operations.
+Upload:
 
-The long-term goal is to transform it into a powerful field device capable of handling multiple protocols, environments and workflows with high flexibility and performance.
+```bash
+scripts/flash.sh
+```
 
-### Planned Advanced Features
+Prepare a development microSD tree:
 
-#### Wireless Capabilities
+```bash
+scripts/generate_assets.py --clean
+```
 
-* Advanced WiFi analysis (monitor mode, packet inspection with external modules)
-* BLE scanner with device profiling
-* RF analysis via expansion modules (sub-GHz, LoRa, SDR support)
-* Signal replay and controlled transmission (hardware-dependent)
-
-#### Hardware Interaction
-
-* Full GPIO control suite (digital, analog, PWM, interrupts)
-* Logic analyzer (basic digital signal inspection)
-* Sensor integration (temperature, distance, light, etc.)
-* External module ecosystem (plug-and-play architecture)
-
-#### Communication & Protocols
-
-* NFC / RFID reading and interaction
-* Infrared (IR) capture and transmission
-* UART, SPI and I2C protocol tools
-* Custom protocol debugging tools
-
-#### Storage & Data
-
-* SD card support for logs and captures
-* Structured data export (JSON, CSV)
-* Session recording and replay
-* Persistent configuration system
-
-#### Interface & Usability
-
-* Dedicated display interface
-* Physical navigation controls (buttons, encoder)
-* Highly customizable UI (themes, layouts, profiles)
-* Fast navigation optimized for field usage
-
-#### Automation & Scripting
-
-* Advanced automation engine
-* Rule-based triggers (event-driven execution)
-* Scriptable workflows
-* Task scheduling and chaining
-
-#### Intelligence Layer
-
-* AI-assisted analysis (optional external integration)
-* Pattern recognition in collected data
-* Automated diagnostics and suggestions
-* Log summarization and anomaly detection
-
-#### System Architecture
-
-* Plugin-based tool system
-* Dynamic module loading
-* Hardware abstraction layer
-* Performance-oriented core services
+More details are in [`usage.md`](usage.md). Hardware validation steps are in [`docs/hardware.md`](docs/hardware.md).
 
 ---
 
-### Vision Statement
+## Architecture Rules
 
-BlackCapy aims to become a modular, extensible and professional-grade platform that bridges the gap between embedded systems, wireless analysis and real-world technical operations.
+Do not create parallel app systems.
 
-It is built not just as a tool, but as a system capable of evolving with new hardware, new protocols and new use cases.
+Never create:
 
+```txt
+ToolManager
+AppManagerV2
+ToolRegistryV2
+Secondary app lists
+```
+
+Use the existing modules:
+
+```txt
+Apps          -> AppManager
+External HW   -> ModuleManager + ModuleManifest
+System events -> Logger
+Evidence      -> CaptureWriter
+Storage paths -> StoragePolicy + FileSystem
+```
+
+---
+
+## UI Direction
+
+BlackCapy uses a hybrid interface:
+
+* ASCII for technical data, logs, menus and diagnostics
+* Pixel art for splash screens, icons, status and context
+
+Performance comes first. Serial rendering is a development fallback, not the final primary interface.
+
+---
+
+## Expansion Direction
+
+Expansion modules are for specialized capabilities such as RF, Sub-GHz, IR, NFC, RFID, CAN, GPS, LoRa and sensors.
+
+Future Sub-GHz work should target a serious tool level: scan, frequency sweep, live RSSI, raw capture, decoder support, signal database on microSD, dedicated UI, AppManager/ModuleManager/CaptureWriter integration and physically confirmed authorized replay with mandatory logs.
+
+BadUSB is not a priority. If it is added later, it should be an external hardware module with native USB HID support, disabled by default, with physical confirmation and logs.
+
+---
 
 ## Status
 
-Phase: Core Firmware and tools (Stable Base)
+Phase: core firmware consolidation and hardware-facing architecture.
 
----
-
-## Author
-
-Henrick
-
----
+The project is moving from serial-first development toward a standalone professional portable device.

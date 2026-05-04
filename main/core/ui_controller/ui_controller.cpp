@@ -4,6 +4,7 @@
 #include "screen_manager.h"
 #include "app_manager.h"
 #include "logger.h"
+#include "display_manager.h"
 
 static int currentTab = 0;
 
@@ -45,13 +46,50 @@ void handleToolsInput(InputEvent event) {
       break;
 
     case INPUT_LEFT:
-      currentTab = 0;
-      screenSet(SCREEN_HOME);
+      appManagerPreviousPage();
+      screenRenderTools();
       break;
 
     case INPUT_RIGHT:
-      currentTab = 2;
-      screenSet(SCREEN_STATUS);
+      appManagerNextPage();
+      screenRenderTools();
+      break;
+
+    default:
+      break;
+  }
+}
+
+void handleSettingsInput(InputEvent event) {
+  switch (event) {
+    case INPUT_UP:
+      // Cycle to previous theme
+      {
+        DisplayTheme current = displayGetTheme();
+        DisplayTheme next = (current == 0) ? THEME_MINIMAL : (DisplayTheme)(current - 1);
+        displaySetTheme(next);
+        screenRenderSettings();
+      }
+      break;
+
+    case INPUT_DOWN:
+      // Cycle to next theme
+      {
+        DisplayTheme current = displayGetTheme();
+        DisplayTheme next = (current == THEME_MINIMAL) ? THEME_DARK : (DisplayTheme)(current + 1);
+        displaySetTheme(next);
+        screenRenderSettings();
+      }
+      break;
+
+    case INPUT_OK:
+      // Could add theme persistence here
+      logInfo("Theme setting confirmed");
+      break;
+
+    case INPUT_BACK:
+      currentTab = 0;
+      screenSet(SCREEN_HOME);
       break;
 
     default:
@@ -100,6 +138,11 @@ void uiControllerUpdate() {
 
   if (screenGet() == SCREEN_TOOLS) {
     handleToolsInput(event);
+    return;
+  }
+
+  if (screenGet() == SCREEN_SETTINGS) {
+    handleSettingsInput(event);
     return;
   }
 

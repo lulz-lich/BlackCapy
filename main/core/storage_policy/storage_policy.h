@@ -15,5 +15,7 @@ String storagePolicyGetAssetsPath();
 String storagePolicyGetScriptsPath();
 String storagePolicyGetCapturesPath();
 String storagePolicyGetModulesPath();
+String storagePolicyGetThemesPath();
+String storagePolicyGetPluginsPath();
 
 #endif

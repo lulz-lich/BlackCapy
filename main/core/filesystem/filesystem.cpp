@@ -1,4 +1,5 @@
 #include "filesystem.h"
+#include "storage_policy.h"
 
 #include <SPI.h>
 #include <SD.h>
@@ -9,7 +10,7 @@
 static bool initialized = false;
 
 bool fileSystemInit() {
-  if (!SD.begin(SPI_CS_PIN)) {
+  if (!SD.begin(SD_CS_PIN)) {
     logWarn("MicroSD not detected.");
     initialized = false;
     return false;
@@ -19,11 +20,13 @@ bool fileSystemInit() {
 
   logInfo("MicroSD initialized.");
 
-  fileSystemCreateDirectory("/logs");
-  fileSystemCreateDirectory("/assets");
-  fileSystemCreateDirectory("/scripts");
-  fileSystemCreateDirectory("/captures");
-  fileSystemCreateDirectory("/modules");
+  fileSystemCreateDirectory(storagePolicyGetLogsPath());
+  fileSystemCreateDirectory(storagePolicyGetAssetsPath());
+  fileSystemCreateDirectory(storagePolicyGetScriptsPath());
+  fileSystemCreateDirectory(storagePolicyGetCapturesPath());
+  fileSystemCreateDirectory(storagePolicyGetModulesPath());
+  fileSystemCreateDirectory(storagePolicyGetThemesPath());
+  fileSystemCreateDirectory(storagePolicyGetPluginsPath());
 
   return true;
 }
@@ -110,4 +113,39 @@ String fileSystemRead(
   f.close();
 
   return data;
+}
+
+bool fileSystemExists(const String& path) {
+  if (!initialized) {
+    return false;
+  }
+
+  return SD.exists(path);
+}
+
+String fileSystemListDirectory(const String& path) {
+  if (!initialized) {
+    return "";
+  }
+
+  File dir = SD.open(path);
+  if (!dir || !dir.isDirectory()) {
+    if (dir) {
+      dir.close();
+    }
+    return "";
+  }
+
+  String output;
+  File entry = dir.openNextFile();
+
+  while (entry) {
+    output += String(entry.name());
+    output += "\n";
+    entry.close();
+    entry = dir.openNextFile();
+  }
+
+  dir.close();
+  return output;
 }

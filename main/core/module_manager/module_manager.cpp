@@ -20,6 +20,12 @@ void moduleManagerClearDetected() {
 
 void moduleManagerRegister(ModuleType type) {
   if (type == MODULE_UNKNOWN) {
+    logWarn("Attempted to register unknown module.");
+    return;
+  }
+
+  if (!moduleManifestIsSupported(type)) {
+    logWarn("Attempted to register unsupported module: " + String(moduleTypeToString(type)));
     return;
   }
 

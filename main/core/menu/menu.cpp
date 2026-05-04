@@ -43,6 +43,12 @@ void menuPrint() {
   Serial.println("help            - Show menu");
   Serial.println("clear           - Clear screen");
   Serial.println("registry        - Show app registry");
+  Serial.println("apps            - List available apps");
+  Serial.println("list            - Alias for apps");
+  Serial.println("run <id>        - Start app by ID");
+  Serial.println("script <name>   - Execute automation script");
+  Serial.println("theme           - Show current theme");
+  Serial.println("theme <name>    - Change theme (dark/light/terminal/matrix/minimal)");
   Serial.println("status          - Show system status");
   Serial.println("heap            - Show heap memory");
   Serial.println();
@@ -54,21 +60,6 @@ void menuHandleInput(const String& input) {
   command.trim();
 
   if (command.length() == 0) {
-    menuPrint();
-    return;
-  }
-
-  if (command == "help") {
-    menuPrint();
-    return;
-  }
-
-  if (command == "clear") {
-    Serial.write(27);
-    Serial.print("[2J");
-    Serial.write(27);
-    Serial.print("[H");
-    menuPrintHeader();
     menuPrint();
     return;
   }

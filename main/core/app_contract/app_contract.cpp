@@ -29,6 +29,34 @@ const char* appPermissionToString(int permissions) {
     return "wifi";
   }
 
+  if (permissions & APP_PERMISSION_IR) {
+    return "ir";
+  }
+
+  if (permissions & APP_PERMISSION_RF) {
+    return "rf";
+  }
+
+  if (permissions & APP_PERMISSION_RFID) {
+    return "rfid";
+  }
+
+  if (permissions & APP_PERMISSION_NFC) {
+    return "nfc";
+  }
+
+  if (permissions & APP_PERMISSION_CAN) {
+    return "can";
+  }
+
+  if (permissions & APP_PERMISSION_GPS) {
+    return "gps";
+  }
+
+  if (permissions & APP_PERMISSION_LORA) {
+    return "lora";
+  }
+
   return "unknown";
 }
 

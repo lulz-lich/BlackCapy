@@ -116,32 +116,47 @@ blackcapy/
 │
 │   ├── core/
 │   │
+│   │   ├── app_contract/
+│   │   ├── app_manager/
+│   │   ├── automation/
+│   │   ├── capture/
+│   │   ├── display/
+│   │   ├── events/
+│   │   ├── filesystem/
+│   │   ├── input/
 │   │   ├── logging/
 │   │   ├── menu/
-│   │   ├── automation/
 │   │   ├── module_manager/
-│   │   ├── storage/
-│   │   ├── events/
-│   │   ├── status/
-│   │   ├── registry/
-│   │   ├── shell/
-│   │   ├── input/
-│   │   ├── display/
+│   │   ├── module_manifest/
 │   │   ├── screens/
+│   │   ├── shell/
+│   │   ├── status/
+│   │   ├── storage/
+│   │   ├── storage_policy/
 │   │   ├── ui/
-│   │   ├── ui_controller/
-│   │   └── app_manager/
+│   │   └── ui_controller/
 │
 │   └── apps/
-│       ├── system/
-│       ├── wifi/
+│       ├── automation/
 │       ├── ble/
-│       ├── gpio/
-│       ├── logs/
-│       ├── settings/
+│       ├── can/
+│       ├── captures/
 │       ├── diagnostics/
+│       ├── gpio/
+│       ├── gps/
+│       ├── health/
+│       ├── ir/
+│       ├── logs/
+│       ├── lora/
+│       ├── modules/
+│       ├── nfc/
+│       ├── rf/
+│       ├── rfid/
+│       ├── settings/
+│       ├── storage/
+│       ├── system/
 │       ├── uart/
-│       └── health/
+│       └── wifi/
 ```
 
 ---
@@ -170,6 +185,32 @@ Logger never controls UI.
 Logger never executes apps.
 ```
 
+Logger records system behavior. It does not replace `CaptureWriter`.
+
+---
+
+## Capture Writer
+
+Location:
+
+```txt
+main/core/capture/
+```
+
+Responsibilities:
+
+* Operational evidence
+* Capture files under `/captures`
+* Export and capture statistics helpers
+
+Rules:
+
+```txt
+CaptureWriter stores evidence.
+Logger stores system behavior.
+Do not mix those responsibilities.
+```
+
 ---
 
 ## Storage
@@ -195,9 +236,40 @@ ESP32 Preferences
 Future expansion:
 
 ```txt id="v0byiw"
-SD Card
 Encrypted storage
 Session export
+```
+
+Native microSD storage is handled by `FileSystem` and `StoragePolicy`.
+
+---
+
+## FileSystem And StoragePolicy
+
+Locations:
+
+```txt
+main/core/filesystem/
+main/core/storage_policy/
+```
+
+Responsibilities:
+
+* Initialize native onboard microSD
+* Create operational directories
+* Keep critical settings in Preferences
+* Keep logs, assets, scripts, captures, modules, themes and plugins on microSD
+
+Expected microSD directories:
+
+```txt
+/logs
+/assets
+/scripts
+/captures
+/modules
+/themes
+/plugins
 ```
 
 ---
@@ -278,6 +350,67 @@ ToolManager
 ToolRegistryV2
 Secondary app lists
 ```
+
+`AppEntry` has seven fields:
+
+```cpp
+{
+  TOOL_ID,
+  "Name",
+  "category",
+  "description",
+  APP_PERMISSION_*,
+  APP_STATUS_*,
+  runFunction
+}
+```
+
+The Tools screen shows `APP_MANAGER_VISIBLE_ITEMS` apps per page. The current value is `4`.
+
+---
+
+## Module Manifest
+
+Location:
+
+```txt
+main/core/module_manifest/
+```
+
+Responsibilities:
+
+* Define supported external module types
+* Provide module names and interfaces
+* Convert module type strings
+
+Supported module types:
+
+```txt
+MODULE_IR
+MODULE_RF
+MODULE_RFID
+MODULE_NFC
+MODULE_CAN
+MODULE_GPS
+MODULE_LORA
+```
+
+---
+
+## Module Manager
+
+Location:
+
+```txt
+main/core/module_manager/
+```
+
+Responsibilities:
+
+* Register detected external modules
+* Detect modules by ADC resistor ID
+* Support development mock detection
+* Answer whether a required module is available
 
 ---
 

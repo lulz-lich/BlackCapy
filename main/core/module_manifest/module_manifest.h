@@ -24,6 +24,9 @@ struct ModuleManifest {
 
 void moduleManifestInit();
 
+const ModuleManifest* moduleManifestGet(ModuleType type);
+bool moduleManifestIsSupported(ModuleType type);
+
 const char* moduleTypeToString(ModuleType type);
 ModuleType moduleTypeFromString(const String& type);
 

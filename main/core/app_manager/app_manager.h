@@ -5,6 +5,8 @@
 
 #include "app_contract.h"
 
+#define APP_MANAGER_VISIBLE_ITEMS 4
+
 struct AppEntry {
   int id;
   const char* name;
@@ -25,9 +27,13 @@ AppEntry* appManagerGetSelected();
 
 void appManagerNext();
 void appManagerPrevious();
+void appManagerNextPage();
+void appManagerPreviousPage();
 
 void appManagerRunSelected();
 bool appManagerRunById(int id);
+
+void appManagerPrintAll();
 
 int appManagerSelectedIndex();
 

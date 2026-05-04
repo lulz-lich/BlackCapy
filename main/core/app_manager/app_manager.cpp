@@ -16,31 +16,45 @@ static bool appRequiredModuleAvailable(AppEntry* app) {
   }
 
   if (app->permissions & APP_PERMISSION_IR) {
-    return moduleManagerHas(MODULE_IR);
+    if (!moduleManagerHas(MODULE_IR)) {
+      return false;
+    }
   }
 
   if (app->permissions & APP_PERMISSION_RF) {
-    return moduleManagerHas(MODULE_RF);
+    if (!moduleManagerHas(MODULE_RF)) {
+      return false;
+    }
   }
 
   if (app->permissions & APP_PERMISSION_RFID) {
-    return moduleManagerHas(MODULE_RFID);
+    if (!moduleManagerHas(MODULE_RFID)) {
+      return false;
+    }
   }
 
   if (app->permissions & APP_PERMISSION_NFC) {
-    return moduleManagerHas(MODULE_NFC);
+    if (!moduleManagerHas(MODULE_NFC)) {
+      return false;
+    }
   }
 
   if (app->permissions & APP_PERMISSION_CAN) {
-    return moduleManagerHas(MODULE_CAN);
+    if (!moduleManagerHas(MODULE_CAN)) {
+      return false;
+    }
   }
 
   if (app->permissions & APP_PERMISSION_GPS) {
-    return moduleManagerHas(MODULE_GPS);
+    if (!moduleManagerHas(MODULE_GPS)) {
+      return false;
+    }
   }
 
   if (app->permissions & APP_PERMISSION_LORA) {
-    return moduleManagerHas(MODULE_LORA);
+    if (!moduleManagerHas(MODULE_LORA)) {
+      return false;
+    }
   }
 
   return true;
@@ -117,6 +131,39 @@ void appManagerPrevious() {
   }
 }
 
+void appManagerNextPage() {
+  if (registeredAppCount <= 0) {
+    return;
+  }
+
+  const int visibleItems = APP_MANAGER_VISIBLE_ITEMS;
+  int page = selectedAppIndex / visibleItems;
+  int nextIndex = (page + 1) * visibleItems;
+
+  if (nextIndex >= registeredAppCount) {
+    nextIndex = 0;
+  }
+
+  selectedAppIndex = nextIndex;
+}
+
+void appManagerPreviousPage() {
+  if (registeredAppCount <= 0) {
+    return;
+  }
+
+  const int visibleItems = APP_MANAGER_VISIBLE_ITEMS;
+  int page = selectedAppIndex / visibleItems;
+  int previousIndex = (page - 1) * visibleItems;
+
+  if (page == 0) {
+    int lastPage = (registeredAppCount - 1) / visibleItems;
+    previousIndex = lastPage * visibleItems;
+  }
+
+  selectedAppIndex = previousIndex;
+}
+
 bool appManagerIsRunnable(AppEntry* app) {
   if (app == nullptr) {
     return false;
@@ -162,6 +209,23 @@ void appManagerPrintApp(AppEntry* app) {
 
   Serial.print("    ");
   Serial.println(app->description);
+}
+
+void appManagerPrintAll() {
+  Serial.println();
+  Serial.println("========== APP MANAGER ==========");
+
+  if (registeredApps == nullptr || registeredAppCount <= 0) {
+    Serial.println("No apps registered.");
+    Serial.println("=================================");
+    return;
+  }
+
+  for (int i = 0; i < registeredAppCount; i++) {
+    appManagerPrintApp(&registeredApps[i]);
+  }
+
+  Serial.println("=================================");
 }
 
 static void runApp(AppEntry* app) {

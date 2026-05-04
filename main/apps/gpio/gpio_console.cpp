@@ -1,21 +1,22 @@
 #include <Arduino.h>
-#include "blackcapy.h"
+
+#include "hardware_config.h"
 
 void runGPIOConsole() {
   Serial.println();
   Serial.println("========== GPIO CONSOLE ==========");
 
-  pinMode(BLACKCAPY_STATUS_LED, OUTPUT);
+  pinMode(STATUS_LED_PIN, OUTPUT);
 
   Serial.print("Testing status LED on GPIO ");
-  Serial.println(BLACKCAPY_STATUS_LED);
+  Serial.println(STATUS_LED_PIN);
 
   for (int i = 0; i < 5; i++) {
-    digitalWrite(BLACKCAPY_STATUS_LED, HIGH);
+    digitalWrite(STATUS_LED_PIN, HIGH);
     Serial.println("LED: HIGH");
     delay(250);
 
-    digitalWrite(BLACKCAPY_STATUS_LED, LOW);
+    digitalWrite(STATUS_LED_PIN, LOW);
     Serial.println("LED: LOW");
     delay(250);
   }

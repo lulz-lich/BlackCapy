@@ -1,14 +1,13 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define SDA_PIN 21
-#define SCL_PIN 22
+#include "hardware_config.h"
 
 void runI2CScanner() {
   Serial.println();
   Serial.println("========== I2C SCANNER ==========");
 
-  Wire.begin(SDA_PIN, SCL_PIN);
+  Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
 
   int devices = 0;
 

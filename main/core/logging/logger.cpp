@@ -1,5 +1,6 @@
 #include "logger.h"
 #include "filesystem.h"
+#include "storage_policy.h"
 
 static bool fileLoggingEnabled = false;
 
@@ -47,7 +48,7 @@ void logMessage(LogLevel level, const String& message) {
   Serial.println(line);
 
   if (fileLoggingEnabled && fileSystemAvailable()) {
-    fileSystemAppend("/logs/system.log", line + "\n");
+    fileSystemAppend(storagePolicyGetLogsPath() + "/system.log", line + "\n");
   }
 }
 

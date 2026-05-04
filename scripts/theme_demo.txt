@@ -1,0 +1,22 @@
+# BlackCapy automation demo
+# Commands are limited to the firmware automation engine.
+
+print BlackCapy script demo started
+log Automation demo started
+
+print Checking GPIO 5
+gpio read 5
+delay 250
+
+print Pulse GPIO 5 high
+gpio set 5 high
+delay 500
+
+print Pulse GPIO 5 low
+gpio set 5 low
+delay 500
+
+uart write 0 Script UART message from BlackCapy
+
+log Automation demo completed
+print BlackCapy script demo completed

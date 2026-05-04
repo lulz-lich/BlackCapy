@@ -17,5 +17,6 @@ ScreenId screenGet();
 
 void screenRender();
 void screenRenderTools();
+void screenRenderSettings();
 
 #endif

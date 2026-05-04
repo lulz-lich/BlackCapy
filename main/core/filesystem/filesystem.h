@@ -23,4 +23,7 @@ String fileSystemRead(
     const String& file
 );
 
+bool fileSystemExists(const String& path);
+String fileSystemListDirectory(const String& path);
+
 #endif

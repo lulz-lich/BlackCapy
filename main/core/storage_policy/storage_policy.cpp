@@ -47,6 +47,7 @@ void storagePolicyPrint() {
   Serial.println("- captures");
   Serial.println("- modules");
   Serial.println("- themes");
+  Serial.println("- plugins");
 
   Serial.println("====================================");
 }
@@ -69,4 +70,12 @@ String storagePolicyGetCapturesPath() {
 
 String storagePolicyGetModulesPath() {
   return "/modules";
+}
+
+String storagePolicyGetThemesPath() {
+  return "/themes";
+}
+
+String storagePolicyGetPluginsPath() {
+  return "/plugins";
 }
