@@ -92,6 +92,29 @@ bool aiClientGatewayConfigured() {
   return currentConfig.enabled && currentConfig.endpoint.length() > 0;
 }
 
+void aiClientPrintStatus() {
+  currentConfig = aiClientLoadGatewayConfig();
+
+  Serial.println();
+  Serial.println("========== AI GATEWAY STATUS ==========");
+  Serial.print("Enabled: ");
+  Serial.println(currentConfig.enabled ? "yes" : "no");
+
+  Serial.print("Endpoint: ");
+  Serial.println(currentConfig.endpoint.length() > 0 ? currentConfig.endpoint : "(not configured)");
+
+  Serial.print("Device token: ");
+  Serial.println(currentConfig.deviceToken.length() > 0 ? "configured" : "not configured");
+
+  Serial.print("Timeout: ");
+  Serial.print(currentConfig.timeoutMs);
+  Serial.println(" ms");
+
+  Serial.print("WiFi: ");
+  Serial.println(WiFi.status() == WL_CONNECTED ? "connected" : "not connected");
+  Serial.println("=======================================");
+}
+
 String aiClientBuildAnalysisPayload(const String& mode, const String& context) {
   String safeContext = aiPolicyLimitText(aiPolicyRedactSensitiveText(context), 5000);
 

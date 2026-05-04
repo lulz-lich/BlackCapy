@@ -13,6 +13,7 @@ struct AIGatewayConfig {
 void aiClientInit();
 AIGatewayConfig aiClientLoadGatewayConfig();
 bool aiClientGatewayConfigured();
+void aiClientPrintStatus();
 String aiClientBuildAnalysisPayload(const String& mode, const String& context);
 bool aiClientSendAnalysis(const String& payload, String& response, String& error);
 

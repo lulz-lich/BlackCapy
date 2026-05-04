@@ -10,6 +10,7 @@
 #include "capture_writer.h"
 #include "storage_policy.h"
 #include "subghz_scanner.h"
+#include "ai_client.h"
 #include "ai_analyzer.h"
 #include "ai_report_viewer.h"
 #include "blackcapy.h"
@@ -250,6 +251,7 @@ bool shellHandleCommand(const String& rawCommand) {
 
   if (command == "ai" || command == "ai help") {
     Serial.println("AI commands:");
+    Serial.println("- ai status        (show gateway configuration)");
     Serial.println("- ai analyze       (run AI Analyzer app)");
     Serial.println("- ai report        (show last AI report)");
     Serial.println("- run " + String(TOOL_AI_ANALYZER) + "           (same app through AppManager)");
@@ -260,6 +262,11 @@ bool shellHandleCommand(const String& rawCommand) {
 
   if (command == "ai analyze" || command == "analyze ai") {
     runAIAnalyzer();
+    return true;
+  }
+
+  if (command == "ai status" || command == "status ai") {
+    aiClientPrintStatus();
     return true;
   }
 

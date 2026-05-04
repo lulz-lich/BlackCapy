@@ -184,6 +184,7 @@ timeout_ms=12000
 Then run on BlackCapy:
 
 ```txt
+ai status
 ai analyze
 ai report
 ```

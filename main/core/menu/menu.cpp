@@ -52,6 +52,7 @@ void menuPrint() {
   Serial.println("analyze subghz  - Summarize Sub-GHz captures");
   Serial.println("spectrum subghz - Show Sub-GHz activity spectrum");
   Serial.println("subghz db       - Build Sub-GHz signal database");
+  Serial.println("ai status       - Show AI gateway status");
   Serial.println("ai analyze      - Send redacted context to AI gateway");
   Serial.println("ai report       - Show latest AI companion report");
   Serial.println("status          - Show system status");

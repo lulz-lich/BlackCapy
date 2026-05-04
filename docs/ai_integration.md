@@ -65,6 +65,7 @@ Serial shell:
 
 ```txt
 ai
+ai status
 ai analyze
 ai report
 analyze ai
@@ -149,6 +150,8 @@ curl -X POST http://<gateway-ip>:8787/analyze \
 The gateway response is JSON. Firmware extracts the `analysis` field for display and stores that text in `/reports/ai_last_report.txt`.
 
 `AI Report Viewer` and the `ai report` shell command show the latest saved report without contacting the gateway.
+
+`ai status` shows gateway configuration without printing the device token value.
 
 ---
 
