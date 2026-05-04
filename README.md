@@ -50,10 +50,11 @@ Implemented or scaffolded app areas include:
 * System, diagnostics, health and settings
 * WiFi and BLE
 * GPIO, PWM, analog, I2C and UART
-* Storage, logs and captures
+* Storage, logs, captures, signal databases and AI companion reports
 * Automation
 * Modules and module diagnostics
 * IR, RF/Sub-GHz, RFID, NFC, CAN, GPS and LoRa
+* AI companion gateway analysis and local report viewing
 
 Apps that collect operational evidence use `CaptureWriter`; system behavior uses `Logger`.
 

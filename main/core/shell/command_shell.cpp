@@ -10,6 +10,9 @@
 #include "capture_writer.h"
 #include "storage_policy.h"
 #include "subghz_scanner.h"
+#include "ai_analyzer.h"
+#include "ai_report_viewer.h"
+#include "blackcapy.h"
 
 static int parseIdFromCommand(const String& command, const String& prefix) {
   String value = command.substring(prefix.length());
@@ -222,11 +225,46 @@ bool shellHandleCommand(const String& rawCommand) {
     Serial.println("Available analysis commands:");
     Serial.println("- analyze subghz  (analyze Sub-GHz capture data)");
     Serial.println("- analyze rf      (alias for analyze subghz)");
+    Serial.println("- ai analyze      (send redacted context to AI gateway)");
     return true;
   }
 
   if (command == "spectrum" || command == "spectrum subghz") {
     visualizeSubGHzSpectrum();
+    return true;
+  }
+
+  if (command == "subghz" || command == "subghz help") {
+    Serial.println("SubGHz commands:");
+    Serial.println("- run " + String(TOOL_SUBGHZ_SCANNER) + "            (start configured scan)");
+    Serial.println("- analyze subghz    (summarize captures)");
+    Serial.println("- spectrum subghz   (draw activity spectrum)");
+    Serial.println("- subghz db         (build /signals/subghz_signals.csv)");
+    return true;
+  }
+
+  if (command == "subghz db") {
+    buildSubGHzSignalDatabase();
+    return true;
+  }
+
+  if (command == "ai" || command == "ai help") {
+    Serial.println("AI commands:");
+    Serial.println("- ai analyze       (run AI Analyzer app)");
+    Serial.println("- ai report        (show last AI report)");
+    Serial.println("- run " + String(TOOL_AI_ANALYZER) + "           (same app through AppManager)");
+    Serial.println("Config: /ai/gateway.cfg");
+    Serial.println("Reports: /reports/ai_last_report.txt");
+    return true;
+  }
+
+  if (command == "ai analyze" || command == "analyze ai") {
+    runAIAnalyzer();
+    return true;
+  }
+
+  if (command == "ai report" || command == "report ai") {
+    runAIReportViewer();
     return true;
   }
 

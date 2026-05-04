@@ -82,12 +82,14 @@ Examples:
 * Storage Status
 * Log Viewer
 * Capture Viewer
+* Signal Database
 
 Rules:
 
 * System behavior goes through `Logger`
 * Operational evidence goes through `CaptureWriter`
 * Capture categories are limited to known operational domains
+* Derived signal records live under `/signals`
 
 ### Modules
 
@@ -106,6 +108,23 @@ Examples:
 * LoRa Status
 
 Module-dependent apps must use module permissions such as `APP_PERMISSION_RF`, `APP_PERMISSION_NFC` or `APP_PERMISSION_CAN`.
+
+### SubGHz Scanner
+
+SubGHz Scanner performs a configured receive sweep, stores operational evidence through `CaptureWriter`, and can derive operator-friendly views from `/captures/subghz.log`.
+
+Shell helpers:
+
+```txt
+run 22
+analyze subghz
+spectrum subghz
+subghz db
+```
+
+`subghz db` writes `/signals/subghz_signals.csv` with timestamp, frequency, RSSI, payload length, HEX payload and Base64 payload. Timeouts and receive errors remain in the capture log, but are excluded from the signal database.
+
+Signal Database shows the latest derived records from microSD. It does not replace raw captures and does not write evidence.
 
 ---
 

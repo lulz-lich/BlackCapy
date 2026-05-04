@@ -14,7 +14,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / ".pio" / "blackcapy_sdcard"
-SD_DIRS = ("logs", "assets", "scripts", "captures", "modules", "themes", "plugins")
+SD_DIRS = (
+    "logs",
+    "assets",
+    "scripts",
+    "captures",
+    "signals",
+    "ai",
+    "reports",
+    "prompts",
+    "modules",
+    "themes",
+    "plugins",
+)
 
 
 def copy_file(src: Path, dst: Path) -> None:
@@ -57,6 +69,10 @@ def main() -> int:
 
             if src.parent == assets_dir and src.suffix in {".txt", ".cfg"}:
                 copy_file(src, output / "scripts" / src.name)
+            elif src.parent.name == "ai":
+                copy_file(src, output / "ai" / src.name)
+            elif src.parent.name == "prompts":
+                copy_file(src, output / "prompts" / src.name)
             elif src.parent.name == "themes":
                 copy_file(src, output / "themes" / src.name)
             else:

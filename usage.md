@@ -58,9 +58,11 @@ Manual validation:
 ```bash
 scripts/validate_apps.py
 scripts/validate_assets.py
+scripts/validate_ai.py
 scripts/validate_docs.py
 scripts/validate_architecture.py
 scripts/validate_platformio.py
+scripts/validate_gitignore.py
 scripts/check_hardware_config.py
 ```
 
@@ -110,12 +112,16 @@ Output:
 ├── assets/
 ├── scripts/
 ├── captures/
+├── signals/
+├── ai/
+├── reports/
+├── prompts/
 ├── modules/
 ├── themes/
 └── plugins/
 ```
 
-Automation scripts are placed in `/scripts`, while UI assets and configs are placed under their runtime paths.
+Automation scripts are placed in `/scripts`, derived signal databases in `/signals`, AI gateway config in `/ai`, reports in `/reports`, prompts in `/prompts`, while UI assets and configs are placed under their runtime paths.
 
 ---
 
@@ -154,6 +160,32 @@ Baud rate:
 
 ```txt
 115200
+```
+
+---
+
+## AI Gateway
+
+Run the reference gateway on a trusted computer, Raspberry Pi or cloud host:
+
+```bash
+scripts/ai_gateway.py --host 0.0.0.0 --port 8787
+```
+
+Mock mode works without secrets. To enable OpenAI cloud analysis, set `OPENAI_API_KEY` on the gateway host and edit `/ai/gateway.cfg` on the microSD:
+
+```txt
+enabled=true
+endpoint=http://<gateway-ip>:8787/analyze
+device_token=
+timeout_ms=12000
+```
+
+Then run on BlackCapy:
+
+```txt
+ai analyze
+ai report
 ```
 
 ---

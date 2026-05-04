@@ -4,6 +4,7 @@
 #define DEBOUNCE_DELAY 50
 
 static unsigned long lastReadTime = 0;
+static unsigned long lastOKPressTime = 0;
 
 void inputInit() {
   pinMode(BTN_UP_PIN, INPUT_PULLUP);
@@ -25,8 +26,23 @@ InputEvent inputRead() {
   if (!digitalRead(BTN_DOWN_PIN)) return INPUT_DOWN;
   if (!digitalRead(BTN_LEFT_PIN)) return INPUT_LEFT;
   if (!digitalRead(BTN_RIGHT_PIN)) return INPUT_RIGHT;
-  if (!digitalRead(BTN_OK_PIN)) return INPUT_OK;
+  if (!digitalRead(BTN_OK_PIN)) {
+    inputMarkPhysicalOK();
+    return INPUT_OK;
+  }
   if (!digitalRead(BTN_BACK_PIN)) return INPUT_BACK;
 
   return INPUT_NONE;
+}
+
+bool inputPhysicalOKRecentlyPressed(unsigned long windowMs) {
+  if (lastOKPressTime == 0) {
+    return false;
+  }
+
+  return millis() - lastOKPressTime <= windowMs;
+}
+
+void inputMarkPhysicalOK() {
+  lastOKPressTime = millis();
 }

@@ -14,7 +14,9 @@ fi
 echo "Building BlackCapy firmware for environment: ${ENV_NAME}"
 python3 scripts/validate_apps.py
 python3 scripts/validate_assets.py
+python3 scripts/validate_ai.py
 python3 scripts/validate_docs.py
 python3 scripts/validate_architecture.py
 python3 scripts/validate_platformio.py
+python3 scripts/validate_gitignore.py
 pio run -e "$ENV_NAME" "$@"

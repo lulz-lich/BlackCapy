@@ -49,6 +49,11 @@ void menuPrint() {
   Serial.println("script <name>   - Execute automation script");
   Serial.println("theme           - Show current theme");
   Serial.println("theme <name>    - Change theme (dark/light/terminal/matrix/minimal)");
+  Serial.println("analyze subghz  - Summarize Sub-GHz captures");
+  Serial.println("spectrum subghz - Show Sub-GHz activity spectrum");
+  Serial.println("subghz db       - Build Sub-GHz signal database");
+  Serial.println("ai analyze      - Send redacted context to AI gateway");
+  Serial.println("ai report       - Show latest AI companion report");
   Serial.println("status          - Show system status");
   Serial.println("heap            - Show heap memory");
   Serial.println();

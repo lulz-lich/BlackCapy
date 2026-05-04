@@ -23,6 +23,60 @@ enum SubGHzLogFormat {
   LOG_FORMAT_BOTH
 };
 
+struct SubGHzCaptureStats {
+  float minFreq;
+  float maxFreq;
+  float strongestFreq;
+  int packetCount;
+  int timeoutCount;
+  int errorCount;
+  int totalSignalStrength;
+  int strongestRSSI;
+};
+
+static String subGHzCapturePath() {
+  return storagePolicyGetCapturesPath() + "/subghz.log";
+}
+
+static String subGHzDatabasePath() {
+  return storagePolicyGetSignalsPath() + "/subghz_signals.csv";
+}
+
+static void resetSubGHzCaptureStats(SubGHzCaptureStats& stats) {
+  stats.minFreq = 999.0f;
+  stats.maxFreq = 0.0f;
+  stats.strongestFreq = 0.0f;
+  stats.packetCount = 0;
+  stats.timeoutCount = 0;
+  stats.errorCount = 0;
+  stats.totalSignalStrength = 0;
+  stats.strongestRSSI = -200;
+}
+
+static String escapeCSV(String value) {
+  bool needsQuotes = false;
+  String escaped;
+
+  for (int i = 0; i < value.length(); i++) {
+    char c = value[i];
+    if (c == '"' || c == ',' || c == '\n' || c == '\r') {
+      needsQuotes = true;
+    }
+
+    if (c == '"') {
+      escaped += "\"\"";
+    } else {
+      escaped += c;
+    }
+  }
+
+  if (needsQuotes) {
+    return "\"" + escaped + "\"";
+  }
+
+  return escaped;
+}
+
 static String bytesToHex(const uint8_t* data, size_t length) {
   static const char hexMap[] = "0123456789ABCDEF";
   String result;
@@ -86,6 +140,139 @@ static String getConfigValue(const String& config, const String& key) {
   }
 
   return String();
+}
+
+static String getLineValue(const String& line, const String& key) {
+  int start = line.indexOf(key + "=");
+  if (start < 0) {
+    return String();
+  }
+
+  start += key.length() + 1;
+  int end = line.indexOf(' ', start);
+  if (end < 0) {
+    end = line.length();
+  }
+
+  String value = line.substring(start, end);
+  value.trim();
+  return value;
+}
+
+static uint32_t getCaptureTimestamp(const String& line) {
+  if (!line.startsWith("[")) {
+    return 0;
+  }
+
+  int end = line.indexOf(" ms]");
+  if (end < 0) {
+    return 0;
+  }
+
+  String timestamp = line.substring(1, end);
+  return (uint32_t) timestamp.toInt();
+}
+
+static bool parseSubGHzCaptureLine(
+    const String& line,
+    float& frequency,
+    int& rssi,
+    String& hexPayload,
+    String& base64Payload
+) {
+  String freqValue = getLineValue(line, "FREQ");
+  if (freqValue.length() == 0) {
+    return false;
+  }
+
+  frequency = freqValue.toFloat();
+  if (frequency <= 0.0f) {
+    return false;
+  }
+
+  String rssiValue = getLineValue(line, "RSSI");
+  if (rssiValue.length() == 0) {
+    return false;
+  }
+
+  rssi = rssiValue.toInt();
+  hexPayload = getLineValue(line, "HEX");
+  base64Payload = getLineValue(line, "B64");
+  return hexPayload.length() > 0 || base64Payload.length() > 0;
+}
+
+static int payloadLengthFrom(const String& hexPayload, const String& base64Payload) {
+  if (hexPayload.length() > 0) {
+    return hexPayload.length() / 2;
+  }
+
+  int padding = 0;
+  if (base64Payload.endsWith("==")) {
+    padding = 2;
+  } else if (base64Payload.endsWith("=")) {
+    padding = 1;
+  }
+
+  return ((base64Payload.length() * 3) / 4) - padding;
+}
+
+static void updateSubGHzStatsFromLine(const String& line, SubGHzCaptureStats& stats) {
+  if (line.indexOf("TIMEOUT") >= 0) {
+    stats.timeoutCount++;
+    return;
+  }
+
+  if (line.indexOf("ERR_") >= 0) {
+    stats.errorCount++;
+    return;
+  }
+
+  float frequency = 0.0f;
+  int rssi = 0;
+  String hexPayload;
+  String base64Payload;
+
+  if (!parseSubGHzCaptureLine(line, frequency, rssi, hexPayload, base64Payload)) {
+    return;
+  }
+
+  if (frequency < stats.minFreq) {
+    stats.minFreq = frequency;
+  }
+  if (frequency > stats.maxFreq) {
+    stats.maxFreq = frequency;
+  }
+
+  stats.totalSignalStrength += rssi;
+  stats.packetCount++;
+
+  if (rssi > stats.strongestRSSI) {
+    stats.strongestRSSI = rssi;
+    stats.strongestFreq = frequency;
+  }
+}
+
+static SubGHzCaptureStats summarizeSubGHzCapture(const String& logData) {
+  SubGHzCaptureStats stats;
+  resetSubGHzCaptureStats(stats);
+
+  int lineStart = 0;
+  while (lineStart < logData.length()) {
+    int lineEnd = logData.indexOf('\n', lineStart);
+    if (lineEnd < 0) {
+      lineEnd = logData.length();
+    }
+
+    String line = logData.substring(lineStart, lineEnd);
+    line.trim();
+    if (line.length() > 0) {
+      updateSubGHzStatsFromLine(line, stats);
+    }
+
+    lineStart = lineEnd + 1;
+  }
+
+  return stats;
 }
 
 static void loadSubGHzScanConfig(
@@ -284,7 +471,7 @@ void analyzeSubGHzCapture() {
     return;
   }
 
-  String capturePath = storagePolicyGetCapturesPath() + "/subghz.log";
+  String capturePath = subGHzCapturePath();
   if (!fileSystemExists(capturePath)) {
     Serial.println("No SubGHz capture data found.");
     return;
@@ -296,90 +483,35 @@ void analyzeSubGHzCapture() {
     return;
   }
 
-  // Parse and analyze
-  float minFreq = 999.0f;
-  float maxFreq = 0.0f;
-  int packetCount = 0;
-  int totalSignalStrength = 0;
-  int strongestRSSI = -200;
-  float strongestFreq = 0.0f;
-
-  int lineStart = 0;
-  int lineEnd;
-
-  while (lineStart < logData.length()) {
-    lineEnd = logData.indexOf('\n', lineStart);
-    if (lineEnd < 0) {
-      lineEnd = logData.length();
-    }
-
-    String line = logData.substring(lineStart, lineEnd);
-    line.trim();
-
-    // Parse: [timestamp ms] FREQ=xxx.xx RSSI=yyy ...
-    if (line.indexOf("FREQ=") >= 0) {
-      int freqIdx = line.indexOf("FREQ=");
-      if (freqIdx >= 0) {
-        int spaceIdx = line.indexOf(' ', freqIdx);
-        if (spaceIdx < 0) {
-          spaceIdx = line.length();
-        }
-        String freqStr = line.substring(freqIdx + 5, spaceIdx);
-        float freq = freqStr.toFloat();
-
-        if (freq > 0) {
-          if (freq < minFreq) {
-            minFreq = freq;
-          }
-          if (freq > maxFreq) {
-            maxFreq = freq;
-          }
-
-          int rssiIdx = line.indexOf("RSSI=");
-          if (rssiIdx >= 0) {
-            int rssiEnd = line.indexOf(' ', rssiIdx);
-            if (rssiEnd < 0) {
-              rssiEnd = line.length();
-            }
-            String rssiStr = line.substring(rssiIdx + 5, rssiEnd);
-            int rssi = rssiStr.toInt();
-            totalSignalStrength += rssi;
-            packetCount++;
-
-            if (rssi > strongestRSSI) {
-              strongestRSSI = rssi;
-              strongestFreq = freq;
-            }
-          }
-        }
-      }
-    }
-
-    lineStart = lineEnd + 1;
-  }
+  SubGHzCaptureStats stats = summarizeSubGHzCapture(logData);
 
   Serial.println("=== Frequency Analysis ===");
-  if (packetCount > 0) {
+  if (stats.packetCount > 0) {
     Serial.print("Packets detected: ");
-    Serial.println(packetCount);
+    Serial.println(stats.packetCount);
     Serial.print("Frequency range: ");
-    Serial.print(minFreq, 2);
+    Serial.print(stats.minFreq, 2);
     Serial.print(" - ");
-    Serial.print(maxFreq, 2);
+    Serial.print(stats.maxFreq, 2);
     Serial.println(" MHz");
     Serial.print("Average RSSI: ");
-    Serial.print(totalSignalStrength / packetCount);
+    Serial.print(stats.totalSignalStrength / stats.packetCount);
     Serial.println(" dBm");
     Serial.print("Strongest signal: ");
-    Serial.print(strongestRSSI);
+    Serial.print(stats.strongestRSSI);
     Serial.print(" dBm at ");
-    Serial.print(strongestFreq, 2);
+    Serial.print(stats.strongestFreq, 2);
     Serial.println(" MHz");
   } else {
     Serial.println("No packets detected in capture.");
   }
 
+  Serial.print("Timeouts: ");
+  Serial.println(stats.timeoutCount);
+  Serial.print("Errors: ");
+  Serial.println(stats.errorCount);
   Serial.println("\nUse 'capture export subghz subghz.csv' to export to CSV.");
+  Serial.println("Use 'subghz db' to build the signal database.");
   Serial.println();
 }
 
@@ -391,7 +523,7 @@ void visualizeSubGHzSpectrum() {
     return;
   }
 
-  String capturePath = storagePolicyGetCapturesPath() + "/subghz.log";
+  String capturePath = subGHzCapturePath();
   if (!fileSystemExists(capturePath)) {
     Serial.println("No SubGHz capture data found.");
     return;
@@ -507,4 +639,83 @@ void visualizeSubGHzSpectrum() {
   Serial.print(maxFreq, 1);
   Serial.println(" MHz");
   Serial.println();
+}
+
+void buildSubGHzSignalDatabase() {
+  Serial.println("\n========== SubGHz Signal Database ==========\n");
+
+  if (!fileSystemAvailable()) {
+    Serial.println("MicroSD not available.");
+    return;
+  }
+
+  String capturePath = subGHzCapturePath();
+  if (!fileSystemExists(capturePath)) {
+    Serial.println("No SubGHz capture data found.");
+    return;
+  }
+
+  String logData = fileSystemRead(capturePath);
+  if (logData.length() == 0) {
+    Serial.println("Capture data is empty.");
+    return;
+  }
+
+  String database;
+  database.reserve(1024);
+  database += "timestamp_ms,frequency_mhz,rssi_dbm,length_bytes,hex,base64\n";
+
+  int records = 0;
+  int lineStart = 0;
+
+  while (lineStart < logData.length()) {
+    int lineEnd = logData.indexOf('\n', lineStart);
+    if (lineEnd < 0) {
+      lineEnd = logData.length();
+    }
+
+    String line = logData.substring(lineStart, lineEnd);
+    line.trim();
+
+    float frequency = 0.0f;
+    int rssi = 0;
+    String hexPayload;
+    String base64Payload;
+
+    if (parseSubGHzCaptureLine(line, frequency, rssi, hexPayload, base64Payload)) {
+      database += String(getCaptureTimestamp(line));
+      database += ",";
+      database += String(frequency, 2);
+      database += ",";
+      database += String(rssi);
+      database += ",";
+      database += String(payloadLengthFrom(hexPayload, base64Payload));
+      database += ",";
+      database += escapeCSV(hexPayload);
+      database += ",";
+      database += escapeCSV(base64Payload);
+      database += "\n";
+      records++;
+    }
+
+    lineStart = lineEnd + 1;
+  }
+
+  if (records == 0) {
+    Serial.println("No packet records found. Timeouts and errors are not stored in the database.");
+    return;
+  }
+
+  String databasePath = subGHzDatabasePath();
+  if (!fileSystemWrite(databasePath, database)) {
+    Serial.println("Failed to write signal database.");
+    logError("SubGHz signal database write failed.");
+    return;
+  }
+
+  Serial.print("Signal records: ");
+  Serial.println(records);
+  Serial.print("Database path: ");
+  Serial.println(databasePath);
+  logInfo("SubGHz signal database updated.");
 }

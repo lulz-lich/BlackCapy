@@ -15,5 +15,7 @@ enum InputEvent {
 
 void inputInit();
 InputEvent inputRead();
+bool inputPhysicalOKRecentlyPressed(unsigned long windowMs);
+void inputMarkPhysicalOK();
 
 #endif

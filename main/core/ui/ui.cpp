@@ -109,30 +109,84 @@ void uiShowIconSubGHz() {
   Serial.println(" /_|_\\\\");
 }
 
+void uiShowIconSignalDatabase() {
+  Serial.println("[ SIGNALS ]");
+  Serial.println("  ______");
+  Serial.println(" | ~~ |");
+  Serial.println(" | ## |");
+  Serial.println(" |____|");
+}
+
+void uiShowIconAI() {
+  Serial.println("[ AI ]");
+  Serial.println("  ____");
+  Serial.println(" |o..|");
+  Serial.println(" |.o.|");
+  Serial.println(" |__o|");
+}
+
 // Hybrid UI functions - pixel art with ASCII fallback
 void uiShowIconWiFiHybrid() {
-  displayDrawIconFromFile(0, 0, "icons/wifi_icon.bmp");
-  uiShowIconWiFi(); // ASCII fallback
+  uiShowIconWiFiHybridAt(0, 0);
 }
 
 void uiShowIconBLEHybrid() {
-  displayDrawIconFromFile(0, 0, "icons/ble_icon.bmp");
-  uiShowIconBLE(); // ASCII fallback
+  uiShowIconBLEHybridAt(0, 0);
 }
 
 void uiShowIconGPIOHybrid() {
-  displayDrawIconFromFile(0, 0, "icons/gpio_icon.bmp");
-  uiShowIconGPIO(); // ASCII fallback
+  uiShowIconGPIOHybridAt(0, 0);
 }
 
 void uiShowIconRFHybrid() {
-  displayDrawIconFromFile(0, 0, "icons/rf_icon.bmp");
-  uiShowIconRF(); // ASCII fallback
+  uiShowIconRFHybridAt(0, 0);
 }
 
 void uiShowIconSubGHzHybrid() {
-  displayDrawIconFromFile(0, 0, "icons/subghz_icon.bmp");
+  uiShowIconSubGHzHybridAt(0, 0);
+}
+
+void uiShowIconSignalDatabaseHybrid() {
+  uiShowIconSignalDatabaseHybridAt(0, 0);
+}
+
+void uiShowIconAIHybrid() {
+  uiShowIconAIHybridAt(0, 0);
+}
+
+void uiShowIconWiFiHybridAt(int x, int y) {
+  displayDrawIconFromFile(x, y, "icons/wifi_icon.bmp");
+  uiShowIconWiFi(); // ASCII fallback
+}
+
+void uiShowIconBLEHybridAt(int x, int y) {
+  displayDrawIconFromFile(x, y, "icons/ble_icon.bmp");
+  uiShowIconBLE(); // ASCII fallback
+}
+
+void uiShowIconGPIOHybridAt(int x, int y) {
+  displayDrawIconFromFile(x, y, "icons/gpio_icon.bmp");
+  uiShowIconGPIO(); // ASCII fallback
+}
+
+void uiShowIconRFHybridAt(int x, int y) {
+  displayDrawIconFromFile(x, y, "icons/rf_icon.bmp");
+  uiShowIconRF(); // ASCII fallback
+}
+
+void uiShowIconSubGHzHybridAt(int x, int y) {
+  displayDrawIconFromFile(x, y, "icons/subghz_icon.bmp");
   uiShowIconSubGHz(); // ASCII fallback
+}
+
+void uiShowIconSignalDatabaseHybridAt(int x, int y) {
+  displayDrawIconFromFile(x, y, "icons/signal_icon.bmp");
+  uiShowIconSignalDatabase(); // ASCII fallback
+}
+
+void uiShowIconAIHybridAt(int x, int y) {
+  displayDrawIconFromFile(x, y, "icons/ai_icon.bmp");
+  uiShowIconAI(); // ASCII fallback
 }
 
 void uiShowLogoHybrid() {

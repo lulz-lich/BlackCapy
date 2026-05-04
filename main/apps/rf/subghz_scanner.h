@@ -4,5 +4,6 @@
 void runSubGHzScanner();
 void analyzeSubGHzCapture();
 void visualizeSubGHzSpectrum();
+void buildSubGHzSignalDatabase();
 
 #endif

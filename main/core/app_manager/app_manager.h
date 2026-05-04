@@ -21,6 +21,10 @@ void appManagerPrintApp(AppEntry* app);
 void appManagerInit(AppEntry* apps, int count);
 
 int appManagerCount();
+int appManagerPageCount();
+int appManagerCurrentPage();
+int appManagerPageStartIndex();
+int appManagerPageEndIndex();
 AppEntry* appManagerGet(int index);
 AppEntry* appManagerGetById(int id);
 AppEntry* appManagerGetSelected();

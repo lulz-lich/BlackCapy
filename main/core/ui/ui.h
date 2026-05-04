@@ -21,6 +21,8 @@ void uiShowIconSystem();
 void uiShowIconLogs();
 void uiShowIconRF();
 void uiShowIconSubGHz();
+void uiShowIconSignalDatabase();
+void uiShowIconAI();
 
 // Hybrid UI functions (pixel art + ASCII fallback)
 void uiShowIconWiFiHybrid();
@@ -28,6 +30,15 @@ void uiShowIconBLEHybrid();
 void uiShowIconGPIOHybrid();
 void uiShowIconRFHybrid();
 void uiShowIconSubGHzHybrid();
+void uiShowIconSignalDatabaseHybrid();
+void uiShowIconAIHybrid();
+void uiShowIconWiFiHybridAt(int x, int y);
+void uiShowIconBLEHybridAt(int x, int y);
+void uiShowIconGPIOHybridAt(int x, int y);
+void uiShowIconRFHybridAt(int x, int y);
+void uiShowIconSubGHzHybridAt(int x, int y);
+void uiShowIconSignalDatabaseHybridAt(int x, int y);
+void uiShowIconAIHybridAt(int x, int y);
 void uiShowLogoHybrid();
 
 // Progress and data visualization

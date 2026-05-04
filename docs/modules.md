@@ -136,3 +136,16 @@ Future Sub-GHz support should target serious field capability:
 * Mandatory system logs for transmission actions
 
 Do not treat future Sub-GHz as simple packet capture only.
+
+Current Sub-GHz capture flow:
+
+```txt
+/scripts/subghz_scan.cfg
+  -> SubGHz Scanner
+  -> /captures/subghz.log
+  -> analyze subghz
+  -> spectrum subghz
+  -> /signals/subghz_signals.csv
+```
+
+The signal database is generated with `subghz db`. It is intentionally receive-only and does not authorize or imply replay capability.

@@ -45,6 +45,10 @@ void storagePolicyPrint() {
   Serial.println("- assets");
   Serial.println("- scripts");
   Serial.println("- captures");
+  Serial.println("- signals");
+  Serial.println("- ai");
+  Serial.println("- reports");
+  Serial.println("- prompts");
   Serial.println("- modules");
   Serial.println("- themes");
   Serial.println("- plugins");
@@ -66,6 +70,22 @@ String storagePolicyGetScriptsPath() {
 
 String storagePolicyGetCapturesPath() {
   return "/captures";
+}
+
+String storagePolicyGetSignalsPath() {
+  return "/signals";
+}
+
+String storagePolicyGetAIPath() {
+  return "/ai";
+}
+
+String storagePolicyGetReportsPath() {
+  return "/reports";
+}
+
+String storagePolicyGetPromptsPath() {
+  return "/prompts";
 }
 
 String storagePolicyGetModulesPath() {

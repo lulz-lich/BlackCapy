@@ -27,25 +27,46 @@ ScreenId screenGet() {
 static void renderToolIcon(int toolId, int x, int y) {
   switch (toolId) {
     case TOOL_WIFI_SCANNER:
-      uiShowIconWiFiHybrid();
+      uiShowIconWiFiHybridAt(x, y);
       break;
     case TOOL_BLE_SCANNER:
-      uiShowIconBLEHybrid();
+      uiShowIconBLEHybridAt(x, y);
       break;
     case TOOL_GPIO_CONSOLE:
-      uiShowIconGPIOHybrid();
+      uiShowIconGPIOHybridAt(x, y);
       break;
     case TOOL_RF_ANALYZER:
-      uiShowIconRFHybrid();
+      uiShowIconRFHybridAt(x, y);
       break;
     case TOOL_SUBGHZ_SCANNER:
-      uiShowIconSubGHzHybrid();
+      uiShowIconSubGHzHybridAt(x, y);
+      break;
+    case TOOL_SIGNAL_DATABASE:
+      uiShowIconSignalDatabaseHybridAt(x, y);
+      break;
+    case TOOL_AI_ANALYZER:
+      uiShowIconAIHybridAt(x, y);
+      break;
+    case TOOL_AI_REPORT_VIEWER:
+      uiShowIconAIHybridAt(x, y);
       break;
     default:
       // No specific icon, show generic
       displayDrawAsciiFrame(x, y, 20, 6, "TOOL");
       break;
   }
+}
+
+static String compactText(const String& text, int maxChars) {
+  if (text.length() <= (unsigned)maxChars) {
+    return text;
+  }
+
+  if (maxChars <= 3) {
+    return text.substring(0, maxChars);
+  }
+
+  return text.substring(0, maxChars - 3) + "...";
 }
 
 static void renderHome() {
@@ -83,14 +104,10 @@ static void renderTools() {
     return;
   }
 
-  const int visibleItems = APP_MANAGER_VISIBLE_ITEMS;
-  int page = selected / visibleItems;
-  int start = page * visibleItems;
-  int end = start + visibleItems;
-
-  if (end > total) {
-    end = total;
-  }
+  int page = appManagerCurrentPage();
+  int pageCount = appManagerPageCount();
+  int start = appManagerPageStartIndex();
+  int end = appManagerPageEndIndex();
 
   for (int i = start; i < end; i++) {
     AppEntry* app = appManagerGet(i);
@@ -112,7 +129,7 @@ static void renderTools() {
       line += "  ";
     }
 
-    line += app->name;
+    line += compactText(app->name, 22);
 
     if (!appManagerIsRunnable(app)) {
       line += " [LOCK]";
@@ -124,16 +141,12 @@ static void renderTools() {
   AppEntry* selectedApp = appManagerGetSelected();
 
   if (selectedApp != nullptr) {
-    displayDrawText(
-      0,
-      150,
-      "Category: " + String(selectedApp->category)
-    );
+    displayDrawText(0, 150, "ID: " + String(selectedApp->id) + " | Category: " + String(selectedApp->category));
 
     displayDrawText(
       0,
       172,
-      String(selectedApp->description)
+      compactText(String(selectedApp->description), 42)
     );
 
     if (!appManagerIsRunnable(selectedApp)) {
@@ -141,7 +154,6 @@ static void renderTools() {
     }
   }
 
-  int pageCount = (total + visibleItems - 1) / visibleItems;
   displayDrawStatusBar(
     "UP/DOWN SEL | LEFT/RIGHT PAGE " + String(page + 1) + "/" + String(pageCount)
   );

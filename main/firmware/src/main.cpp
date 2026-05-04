@@ -56,6 +56,10 @@
 #include "filesystem.h"
 #include "health_monitor.h"
 #include "capture_viewer.h"
+#include "signal_database_viewer.h"
+#include "ai_client.h"
+#include "ai_analyzer.h"
+#include "ai_report_viewer.h"
 
 void rebootDevice() {
   Serial.println();
@@ -327,6 +331,33 @@ AppEntry apps[] = {
     runCaptureViewer
   },
   {
+    TOOL_SIGNAL_DATABASE,
+    "Signal Database",
+    "system",
+    "Shows derived signal records stored on microSD",
+    APP_PERMISSION_STORAGE,
+    APP_STATUS_STABLE,
+    runSignalDatabaseViewer
+  },
+  {
+    TOOL_AI_ANALYZER,
+    "AI Analyzer",
+    "system",
+    "Sends redacted field context to a configured AI gateway",
+    APP_PERMISSION_WIFI,
+    APP_STATUS_EXPERIMENTAL,
+    runAIAnalyzer
+  },
+  {
+    TOOL_AI_REPORT_VIEWER,
+    "AI Report Viewer",
+    "system",
+    "Shows the latest AI companion report from microSD",
+    APP_PERMISSION_STORAGE,
+    APP_STATUS_STABLE,
+    runAIReportViewer
+  },
+  {
     TOOL_MODULE_MANIFEST,
     "Module Manifest",
     "modules",
@@ -381,6 +412,7 @@ void setup() {
   menuInit();
   automationInit();
   healthMonitorInit();
+  aiClientInit();
 
   uiInit();
   uiControllerInit();

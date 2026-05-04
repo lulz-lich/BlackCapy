@@ -53,6 +53,10 @@ Verify the firmware creates:
 /assets
 /scripts
 /captures
+/signals
+/ai
+/reports
+/prompts
 /modules
 /themes
 /plugins

@@ -258,7 +258,7 @@ Responsibilities:
 * Initialize native onboard microSD
 * Create operational directories
 * Keep critical settings in Preferences
-* Keep logs, assets, scripts, captures, modules, themes and plugins on microSD
+* Keep logs, assets, scripts, captures, derived signal databases, AI config, reports, prompts, modules, themes and plugins on microSD
 
 Expected microSD directories:
 
@@ -267,6 +267,10 @@ Expected microSD directories:
 /assets
 /scripts
 /captures
+/signals
+/ai
+/reports
+/prompts
 /modules
 /themes
 /plugins

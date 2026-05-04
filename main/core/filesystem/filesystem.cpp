@@ -24,6 +24,10 @@ bool fileSystemInit() {
   fileSystemCreateDirectory(storagePolicyGetAssetsPath());
   fileSystemCreateDirectory(storagePolicyGetScriptsPath());
   fileSystemCreateDirectory(storagePolicyGetCapturesPath());
+  fileSystemCreateDirectory(storagePolicyGetSignalsPath());
+  fileSystemCreateDirectory(storagePolicyGetAIPath());
+  fileSystemCreateDirectory(storagePolicyGetReportsPath());
+  fileSystemCreateDirectory(storagePolicyGetPromptsPath());
   fileSystemCreateDirectory(storagePolicyGetModulesPath());
   fileSystemCreateDirectory(storagePolicyGetThemesPath());
   fileSystemCreateDirectory(storagePolicyGetPluginsPath());

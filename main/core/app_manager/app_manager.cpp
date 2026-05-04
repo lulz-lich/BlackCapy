@@ -73,6 +73,36 @@ int appManagerCount() {
   return registeredAppCount;
 }
 
+int appManagerPageCount() {
+  if (registeredAppCount <= 0) {
+    return 0;
+  }
+
+  return (registeredAppCount + APP_MANAGER_VISIBLE_ITEMS - 1) / APP_MANAGER_VISIBLE_ITEMS;
+}
+
+int appManagerCurrentPage() {
+  if (registeredAppCount <= 0) {
+    return 0;
+  }
+
+  return selectedAppIndex / APP_MANAGER_VISIBLE_ITEMS;
+}
+
+int appManagerPageStartIndex() {
+  return appManagerCurrentPage() * APP_MANAGER_VISIBLE_ITEMS;
+}
+
+int appManagerPageEndIndex() {
+  int end = appManagerPageStartIndex() + APP_MANAGER_VISIBLE_ITEMS;
+
+  if (end > registeredAppCount) {
+    end = registeredAppCount;
+  }
+
+  return end;
+}
+
 int appManagerSelectedIndex() {
   return selectedAppIndex;
 }
