@@ -91,6 +91,9 @@ Full art workflow and placement examples are documented in:
 docs/art_assets.md
 ```
 
+That guide also documents the parameters for `displayDrawIconFromFileScaled`,
+`displayDrawAnimationFromFileScaled`, text, title and status-bar functions.
+
 ---
 
 ## Hybrid Functions

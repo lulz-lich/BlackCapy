@@ -167,6 +167,195 @@ loads:
 
 ---
 
+## Display Function Reference
+
+Coordinates use the TFT pixel grid:
+
+```txt
+x = horizontal position, 0 at the left edge
+y = vertical position, 0 at the top edge
+```
+
+The default target display is:
+
+```txt
+320x240
+```
+
+### displayDrawIconFromFile
+
+```cpp
+displayDrawIconFromFile(int x, int y, const String& filename);
+```
+
+Parameters:
+
+```txt
+x         Left position where the asset starts.
+y         Top position where the asset starts.
+filename  Asset path relative to /assets.
+```
+
+Example:
+
+```cpp
+displayDrawIconFromFile(0, 32, "icons/wifi_icon.bmp");
+```
+
+Loads:
+
+```txt
+/assets/icons/wifi_icon.bmp
+```
+
+The asset is drawn at its original size.
+
+### displayDrawIconFromFileScaled
+
+```cpp
+displayDrawIconFromFileScaled(int x, int y, const String& filename, int scale);
+```
+
+Parameters:
+
+```txt
+x         Left position where the scaled asset starts.
+y         Top position where the scaled asset starts.
+filename  Asset path relative to /assets.
+scale     Integer pixel multiplier. 1 = original size, 2 = double, 3 = triple.
+```
+
+Example:
+
+```cpp
+displayDrawIconFromFileScaled(12, 34, "icons/gpio_icon.bmp", 2);
+```
+
+If `gpio_icon.bmp` is `16x16`, this draws it as `32x32`.
+
+Use this for menu icons and small artwork that should be readable on the 320x240 TFT.
+
+### displayDrawAnimationFromFile
+
+```cpp
+displayDrawAnimationFromFile(int x, int y, const String& filename, int frameDelayMs, int loops);
+```
+
+Parameters:
+
+```txt
+x             Left position where each frame starts.
+y             Top position where each frame starts.
+filename      Animation path relative to /assets.
+frameDelayMs  Delay between frames in milliseconds. Use 80-160 for short UI feedback.
+loops         Number of times to play the full animation.
+```
+
+Example:
+
+```cpp
+displayDrawAnimationFromFile(112, 72, "animations/boot_pulse.anim", 120, 2);
+```
+
+Loads:
+
+```txt
+/assets/animations/boot_pulse.anim
+```
+
+### displayDrawAnimationFromFileScaled
+
+```cpp
+displayDrawAnimationFromFileScaled(
+  int x,
+  int y,
+  const String& filename,
+  int frameDelayMs,
+  int loops,
+  int scale
+);
+```
+
+Parameters:
+
+```txt
+x             Left position where each scaled frame starts.
+y             Top position where each scaled frame starts.
+filename      Animation path relative to /assets.
+frameDelayMs  Delay between frames in milliseconds.
+loops         Number of times to play the full animation.
+scale         Integer pixel multiplier. 1 = original size, 2 = double, 3 = triple.
+```
+
+Example:
+
+```cpp
+displayDrawAnimationFromFileScaled(112, 72, "animations/boot_pulse.anim", 100, 2, 3);
+```
+
+If the animation frame is `16x8`, scale `3` draws each frame as `48x24`.
+
+### displayDrawText
+
+```cpp
+displayDrawText(int x, int y, const String& text);
+```
+
+Parameters:
+
+```txt
+x     Left text position.
+y     Top text position.
+text  Text to draw.
+```
+
+Example:
+
+```cpp
+displayDrawText(54, 42, "Reading hardware...");
+```
+
+### displayDrawTitle
+
+```cpp
+displayDrawTitle(const String& title);
+```
+
+Draws the top title bar.
+
+Example:
+
+```cpp
+displayDrawTitle("Sub-GHz");
+```
+
+### displayDrawStatusBar
+
+```cpp
+displayDrawStatusBar(const String& status);
+```
+
+Draws the bottom status bar.
+
+Example:
+
+```cpp
+displayDrawStatusBar("SCAN | ACTIVE");
+```
+
+### displayClear And displayRefresh
+
+```cpp
+displayClear();
+displayRefresh();
+```
+
+Use `displayClear()` before drawing a full new screen.
+
+Use `displayRefresh()` after drawing a screen. On the TFT backend it is mostly a compatibility call, but keeping it makes screen code consistent.
+
+---
+
 ## Draw Art Inside A Tool
 
 Use app code when the art belongs to a tool workflow.
