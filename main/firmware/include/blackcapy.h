@@ -2,7 +2,7 @@
 #define BLACKCAPY_H
 
 #define BLACKCAPY_NAME "BlackCapy"
-#define BLACKCAPY_VERSION "1.0.2"
+#define BLACKCAPY_VERSION "1.0.3"
 #define BLACKCAPY_AUTHOR "Henrique"
 
 #define BLACKCAPY_SERIAL_BAUD 115200
