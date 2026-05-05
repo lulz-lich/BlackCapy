@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 from typing import Any
 from urllib import error, request
 
@@ -19,6 +20,7 @@ from urllib import error, request
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_PORT = 8787
 DEFAULT_MODEL = "gpt-5.2"
+DEFAULT_PROMPT_FILE = Path("assets/prompts/field_analysis.txt")
 OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses"
 
 
@@ -35,10 +37,21 @@ Return concise, professional field notes with:
 """
 
 
-def build_openai_payload(model: str, blackcapy_payload: dict[str, Any]) -> dict[str, Any]:
+def load_prompt_text(prompt_file: Path) -> str:
+    if not prompt_file.exists():
+        return SYSTEM_INSTRUCTIONS
+
+    text = prompt_file.read_text(encoding="utf-8").strip()
+    if not text:
+        return SYSTEM_INSTRUCTIONS
+
+    return text
+
+
+def build_openai_payload(model: str, instructions: str, blackcapy_payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "model": model,
-        "instructions": SYSTEM_INSTRUCTIONS,
+        "instructions": instructions,
         "input": json.dumps(blackcapy_payload, ensure_ascii=False),
     }
 
@@ -49,16 +62,16 @@ def extract_output_text(response_body: dict[str, Any]) -> str:
 
     chunks: list[str] = []
     for item in response_body.get("output", []):
-      for content in item.get("content", []):
-        text = content.get("text")
-        if isinstance(text, str):
-          chunks.append(text)
+        for content in item.get("content", []):
+            text = content.get("text")
+            if isinstance(text, str):
+                chunks.append(text)
 
     return "\n".join(chunks).strip()
 
 
-def call_openai(api_key: str, model: str, payload: dict[str, Any], timeout: int) -> str:
-    body = json.dumps(build_openai_payload(model, payload)).encode("utf-8")
+def call_openai(api_key: str, model: str, instructions: str, payload: dict[str, Any], timeout: int) -> str:
+    body = json.dumps(build_openai_payload(model, instructions, payload)).encode("utf-8")
     req = request.Request(
         OPENAI_RESPONSES_URL,
         data=body,
@@ -98,7 +111,7 @@ def mock_analysis(payload: dict[str, Any]) -> str:
 
 
 class BlackCapyGatewayHandler(BaseHTTPRequestHandler):
-    server_version = "BlackCapyAIGateway/0.1"
+    server_version = "BlackCapyAIGateway/1.0"
 
     def _send_json(self, status: int, payload: dict[str, Any]) -> None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -143,6 +156,7 @@ class BlackCapyGatewayHandler(BaseHTTPRequestHandler):
                 analysis = call_openai(
                     self.server.openai_api_key,
                     self.server.model,
+                    self.server.prompt_text,
                     payload,
                     self.server.openai_timeout,
                 )
@@ -174,12 +188,14 @@ class BlackCapyGatewayServer(ThreadingHTTPServer):
         server_address: tuple[str, int],
         handler_class: type[BaseHTTPRequestHandler],
         model: str,
+        prompt_file: Path,
         device_token: str,
         max_body_bytes: int,
         openai_timeout: int,
     ) -> None:
         super().__init__(server_address, handler_class)
         self.model = model
+        self.prompt_text = load_prompt_text(prompt_file)
         self.device_token = device_token
         self.max_body_bytes = max_body_bytes
         self.openai_timeout = openai_timeout
@@ -191,6 +207,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--host", default=DEFAULT_HOST)
     parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     parser.add_argument("--model", default=os.environ.get("OPENAI_MODEL", DEFAULT_MODEL))
+    parser.add_argument("--prompt-file", type=Path, default=DEFAULT_PROMPT_FILE)
     parser.add_argument("--device-token", default=os.environ.get("BLACKCAPY_DEVICE_TOKEN", ""))
     parser.add_argument("--max-body-bytes", type=int, default=16_384)
     parser.add_argument("--openai-timeout", type=int, default=45)
@@ -203,6 +220,7 @@ def main() -> int:
         (args.host, args.port),
         BlackCapyGatewayHandler,
         args.model,
+        args.prompt_file,
         args.device_token,
         args.max_body_bytes,
         args.openai_timeout,
@@ -211,6 +229,7 @@ def main() -> int:
     mode = "openai" if server.openai_api_key else "mock"
     print(f"BlackCapy AI gateway listening on http://{args.host}:{args.port}")
     print(f"Mode: {mode}")
+    print(f"Prompt file: {args.prompt_file}")
     print("POST /analyze")
     print("GET  /health")
 

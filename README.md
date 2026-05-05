@@ -8,11 +8,11 @@ BlackCapy is inspired by Arch Linux principles: freedom, modularity, control and
 
 ---
 
-## Current Focus
+## Release Baseline
 
-BlackCapy is currently in the core firmware consolidation phase.
+BlackCapy 1.0.0 is the current software baseline for the ESP32 firmware, microSD runtime tree, validation scripts and AI companion gateway.
 
-The immediate goals are:
+The baseline guarantees:
 
 * Keep `AppManager` as the single source of truth for apps
 * Keep `ModuleManager` and `ModuleManifest` responsible for external modules
@@ -20,6 +20,7 @@ The immediate goals are:
 * Treat microSD as native onboard storage, not as an expansion module
 * Preserve PlatformIO compatibility with `src_dir = main`
 * Keep serial as a temporary debug interface while the physical UI matures
+* Keep cloud AI behind a gateway, with no provider API key in firmware
 
 ---
 
@@ -106,30 +107,18 @@ Build:
 scripts/build.sh
 ```
 
-`build.sh` runs `scripts/validate_apps.py` before PlatformIO so AppManager registration problems fail early.
+`build.sh` runs the project validation gates before PlatformIO so AppManager, assets, AI, docs, architecture, include paths and ignore rules fail early.
 
-Asset and script validation:
+Validation scripts:
 
 ```bash
+scripts/validate_apps.py
 scripts/validate_assets.py
-```
-
-Documentation validation:
-
-```bash
+scripts/validate_ai.py
 scripts/validate_docs.py
-```
-
-Architecture boundary validation:
-
-```bash
 scripts/validate_architecture.py
-```
-
-PlatformIO include-path validation:
-
-```bash
 scripts/validate_platformio.py
+scripts/validate_gitignore.py
 ```
 
 Hardware pin conflict report:
@@ -202,6 +191,6 @@ BadUSB is not a priority. If it is added later, it should be an external hardwar
 
 ## Status
 
-Phase: core firmware consolidation and hardware-facing architecture.
+Phase: 1.0.0 software baseline.
 
-The project is moving from serial-first development toward a standalone professional portable device.
+The firmware, tooling, docs and gateway are validation-gated. Field production still requires target-board pinout review and hardware validation using `docs/hardware.md`.

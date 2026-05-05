@@ -101,11 +101,13 @@ When the gateway is enabled, firmware also requires a recent physical OK button 
 
 ## Reference Gateway
 
-The repository includes a no-dependency reference gateway:
+The repository includes a no-dependency reference gateway. Its server identifier is `BlackCapyAIGateway/1.0`.
 
 ```bash
 scripts/ai_gateway.py --host 0.0.0.0 --port 8787
 ```
+
+By default it loads the companion prompt from `assets/prompts/field_analysis.txt`. Override it with `--prompt-file` if you want a different instruction set.
 
 Without `OPENAI_API_KEY`, it runs in mock mode and proves that the ESP32 can reach the gateway.
 
@@ -122,6 +124,12 @@ Optional device token:
 ```bash
 export BLACKCAPY_DEVICE_TOKEN="change-me"
 scripts/ai_gateway.py --device-token "$BLACKCAPY_DEVICE_TOKEN"
+```
+
+Custom prompt:
+
+```bash
+scripts/ai_gateway.py --prompt-file assets/prompts/field_analysis.txt
 ```
 
 Configure the microSD file:
