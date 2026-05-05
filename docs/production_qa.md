@@ -72,6 +72,8 @@ Pass criteria:
 
 * Device boots without brownout resets
 * TFT initializes and renders Home, Tools, Status and Settings
+* Static art renders from `/assets/icons` and `/assets/logo`
+* `.anim` assets render from `/assets/animations`
 * ADC button ladder triggers UP, DOWN, LEFT, RIGHT, OK and BACK
 * microSD initializes and writes a log
 * AppManager reports all registered apps

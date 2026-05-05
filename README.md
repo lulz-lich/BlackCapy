@@ -162,6 +162,7 @@ scripts/convert_art.py art/boot.gif -o assets/animations/boot.anim --max-width 9
 ```
 
 More details are in [`usage.md`](usage.md). Hardware validation steps are in [`docs/hardware.md`](docs/hardware.md).
+Pixel-art and animation placement examples are in [`docs/art_assets.md`](docs/art_assets.md).
 
 ---
 

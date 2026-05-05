@@ -85,6 +85,12 @@ scripts/convert_art.py art/icon.png -o assets/icons/icon.bmp --max-width 32 --ma
 scripts/convert_art.py art/boot.gif -o assets/animations/boot.anim --max-width 96 --max-height 64
 ```
 
+Full art workflow and placement examples are documented in:
+
+```txt
+docs/art_assets.md
+```
+
 ---
 
 ## Hybrid Functions
@@ -110,6 +116,8 @@ displayDrawIconFromFileScaled(0, 0, "icons/wifi_icon.bmp", 2);
 displayDrawAnimationFromFileScaled(0, 0, "animations/boot_pulse.anim", 120, 2, 3);
 ```
 
+Use these calls in `main/core/screens/screen_manager.cpp` for Home/Tools/Status/Settings visuals, or inside an app `run...()` function for workflow-specific art.
+
 ---
 
 ## Optional Evolution
@@ -119,8 +127,5 @@ Optional evolution:
 * Hardware-specific polish for the selected target board
 * Optional serial mirror toggle
 * Static ASCII assets
-* Animated ASCII/pixel assets through `.anim` frame files
-* Static pixel art assets
-* Animated pixel art assets
 * Theme-aware palettes
 * Asset caching only where it improves performance

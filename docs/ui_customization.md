@@ -95,6 +95,12 @@ Static: PNG, BMP, JPG, JPEG, WEBP
 Animated: GIF, APNG
 ```
 
+For placement examples in menus and tools, see:
+
+```txt
+docs/art_assets.md
+```
+
 ---
 
 ## Performance Rules
@@ -111,13 +117,10 @@ Rendering should stay cheap and predictable.
 
 ---
 
-## Future Customization
+## Optional Customization
 
-Planned areas:
+Optional areas:
 
-* Persist selected theme in `Storage`
 * Load custom theme configs from `/themes`
 * Support static ASCII assets
-* Support animated ASCII/pixel assets with `.anim` files
-* Support static pixel art
 * Add theme-aware color palettes
