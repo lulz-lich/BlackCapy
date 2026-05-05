@@ -1,4 +1,4 @@
-# BlackCapy 1.0.0 Release Checklist
+# BlackCapy 1.0.1 Release Checklist
 
 This checklist defines the software release baseline for BlackCapy.
 
@@ -53,7 +53,7 @@ It contains firmware binaries, a ready microSD tree and `SHA256SUMS`.
 Expected firmware version:
 
 ```txt
-BLACKCAPY_VERSION = 1.0.0
+BLACKCAPY_VERSION = 1.0.1
 ```
 
 Expected core properties:

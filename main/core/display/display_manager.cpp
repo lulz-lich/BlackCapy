@@ -13,6 +13,36 @@
 
 static DisplayTheme currentTheme = THEME_DARK;
 
+struct DisplayAnimationState {
+  bool active;
+  bool infinite;
+  String filename;
+  String source;
+  String data;
+  int x;
+  int y;
+  int frameDelayMs;
+  int loopsRemaining;
+  int scale;
+  int cursor;
+  unsigned long nextFrameAt;
+};
+
+static DisplayAnimationState animationState = {
+  false,
+  false,
+  "",
+  "",
+  "",
+  0,
+  0,
+  120,
+  0,
+  1,
+  0,
+  0
+};
+
 #if BLACKCAPY_DISPLAY_BACKEND_TFT
 static Adafruit_ILI9341 tft(DISPLAY_TFT_CS_PIN, DISPLAY_TFT_DC_PIN, DISPLAY_TFT_RST_PIN);
 static bool tftReady = false;
@@ -102,6 +132,7 @@ static bool displayThemeIsValid(int theme) {
 static uint8_t* displayLoadBitmap(const String& filename, int* width, int* height);
 static void displayRenderBitmapASCII(int x, int y, const uint8_t* bitmap, int w, int h);
 static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source, int scale);
+static bool displayReadNextAnimationFrame(const String& animationData, int* cursor, String* bits, int* width, int* height, const String& source);
 static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs, int scale);
 #if BLACKCAPY_DISPLAY_BACKEND_TFT
 static uint16_t displayColorBackground();
@@ -143,6 +174,8 @@ void displayInit() {
 }
 
 void displayClear() {
+  displayStopAnimation();
+
 #if BLACKCAPY_DISPLAY_BACKEND_TFT
   if (tftReady) {
     tft.fillScreen(displayColorBackground());
@@ -401,6 +434,147 @@ void displayDrawAnimationFromFileScaled(int x, int y, const String& filename, in
   }
 
   logInfo("Animation rendered: " + filename + " frames=" + String(totalFrames));
+}
+
+void displayStartAnimationFromFile(int x, int y, const String& filename, int frameDelayMs, int loops) {
+  displayStartAnimationFromFileScaled(x, y, filename, frameDelayMs, loops, 1);
+}
+
+void displayStartAnimationFromFileScaled(int x, int y, const String& filename, int frameDelayMs, int loops, int scale) {
+  String assetsPath = storagePolicyGetAssetsPath();
+  String fullPath = assetsPath + "/" + filename;
+
+  displayStopAnimation();
+
+  if (!fileSystemExists(fullPath)) {
+    logWarn("Animation file not found: " + fullPath);
+    Serial.println("[DISPLAY] Failed to start animation: " + filename);
+    return;
+  }
+
+  String animationData = fileSystemRead(fullPath);
+  if (animationData.length() == 0) {
+    logWarn("Animation file is empty or unreadable: " + fullPath);
+    Serial.println("[DISPLAY] Failed to start animation: " + filename);
+    return;
+  }
+
+  animationState.active = true;
+  animationState.infinite = loops == DISPLAY_ANIMATION_LOOP_FOREVER;
+  animationState.filename = filename;
+  animationState.source = fullPath;
+  animationState.data = animationData;
+  animationState.x = x;
+  animationState.y = y;
+  animationState.frameDelayMs = frameDelayMs > 0 ? frameDelayMs : 120;
+  animationState.loopsRemaining = animationState.infinite ? DISPLAY_ANIMATION_LOOP_FOREVER : (loops > 0 ? loops : 1);
+  animationState.scale = scale > 0 ? scale : 1;
+  animationState.cursor = 0;
+  animationState.nextFrameAt = 0;
+
+  displayUpdate();
+  logInfo("Animation started: " + filename);
+}
+
+void displayStartAnimationLoopFromFile(int x, int y, const String& filename, int frameDelayMs) {
+  displayStartAnimationLoopFromFileScaled(x, y, filename, frameDelayMs, 1);
+}
+
+void displayStartAnimationLoopFromFileScaled(int x, int y, const String& filename, int frameDelayMs, int scale) {
+  displayStartAnimationFromFileScaled(x, y, filename, frameDelayMs, DISPLAY_ANIMATION_LOOP_FOREVER, scale);
+}
+
+void displayStopAnimation() {
+  if (!animationState.active && animationState.data.length() == 0) {
+    return;
+  }
+
+  animationState.active = false;
+  animationState.infinite = false;
+  animationState.filename = "";
+  animationState.source = "";
+  animationState.data = "";
+  animationState.x = 0;
+  animationState.y = 0;
+  animationState.frameDelayMs = 120;
+  animationState.loopsRemaining = 0;
+  animationState.scale = 1;
+  animationState.cursor = 0;
+  animationState.nextFrameAt = 0;
+}
+
+bool displayAnimationIsRunning() {
+  return animationState.active;
+}
+
+void displayUpdate() {
+  if (!animationState.active) {
+    return;
+  }
+
+  unsigned long now = millis();
+  if (animationState.nextFrameAt != 0 && (int32_t)(now - animationState.nextFrameAt) < 0) {
+    return;
+  }
+
+  String bits = "";
+  int width = 0;
+  int height = 0;
+
+  if (!displayReadNextAnimationFrame(
+      animationState.data,
+      &animationState.cursor,
+      &bits,
+      &width,
+      &height,
+      animationState.source
+    )) {
+    if (!animationState.infinite) {
+      animationState.loopsRemaining--;
+      if (animationState.loopsRemaining <= 0) {
+        displayStopAnimation();
+        return;
+      }
+    }
+
+    animationState.cursor = 0;
+    if (!displayReadNextAnimationFrame(
+        animationState.data,
+        &animationState.cursor,
+        &bits,
+        &width,
+        &height,
+        animationState.source
+      )) {
+      logWarn("Animation file has no renderable frames: " + animationState.source);
+      displayStopAnimation();
+      return;
+    }
+  }
+
+  if (!displayRenderFrameBits(
+      animationState.x,
+      animationState.y,
+      bits,
+      width,
+      height,
+      animationState.source,
+      animationState.scale
+    )) {
+    displayStopAnimation();
+    return;
+  }
+
+  animationState.nextFrameAt = now + animationState.frameDelayMs;
+}
+
+void displayDelay(unsigned long durationMs) {
+  unsigned long start = millis();
+
+  while (millis() - start < durationMs) {
+    displayUpdate();
+    delay(5);
+  }
 }
 
 void displaySetTheme(DisplayTheme theme) {
@@ -662,6 +836,65 @@ static bool displayRenderFrameBits(int x, int y, const String& bits, int width, 
   displayDrawPixelIconScaled(x, y, bitmap, width, height, scale);
   free(bitmap);
   return true;
+}
+
+static bool displayReadNextAnimationFrame(const String& animationData, int* cursor, String* bits, int* width, int* height, const String& source) {
+  *bits = "";
+  *width = 0;
+  *height = 0;
+
+  while (*cursor < animationData.length()) {
+    int lineEnd = animationData.indexOf('\n', *cursor);
+
+    if (lineEnd < 0) {
+      lineEnd = animationData.length();
+    }
+
+    String line = animationData.substring(*cursor, lineEnd);
+    line.trim();
+    *cursor = lineEnd + 1;
+
+    if (line.length() == 0 || line.startsWith("#")) {
+      continue;
+    }
+
+    if (line == "---") {
+      if (*height > 0) {
+        return true;
+      }
+      continue;
+    }
+
+    bool binaryLine = true;
+    for (int i = 0; i < line.length(); i++) {
+      if (line[i] != '0' && line[i] != '1') {
+        binaryLine = false;
+        break;
+      }
+    }
+
+    if (!binaryLine) {
+      logWarn("Animation ignored non-binary line: " + source);
+      continue;
+    }
+
+    if (*width == 0) {
+      *width = line.length();
+    }
+
+    if (line.length() != *width) {
+      logWarn("Animation frame width mismatch: " + source);
+      *bits = "";
+      *width = 0;
+      *height = 0;
+      continue;
+    }
+
+    *bits += line;
+    (*height)++;
+  }
+
+  return *height > 0;
 }
 
 static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs, int scale) {

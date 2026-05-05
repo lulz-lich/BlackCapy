@@ -10,7 +10,7 @@ BlackCapy is inspired by Arch Linux principles: freedom, modularity, control and
 
 ## Release Baseline
 
-BlackCapy 1.0.0 is the current software baseline for the ESP32 firmware, microSD runtime tree, validation scripts and AI companion gateway.
+BlackCapy 1.0.1 is the current software baseline for the ESP32 firmware, microSD runtime tree, validation scripts and AI companion gateway.
 
 The baseline guarantees:
 
@@ -214,6 +214,6 @@ BadUSB is not a priority. If it is added later, it should be an external hardwar
 
 ## Status
 
-Phase: 1.0.0 release baseline.
+Phase: 1.0.1 release baseline.
 
 The firmware, tooling, docs and gateway are validation-gated. Market release still requires physical target-board validation, enclosure validation, regulatory review and manufacturing QA.

@@ -92,7 +92,8 @@ docs/art_assets.md
 ```
 
 That guide also documents the parameters for `displayDrawIconFromFileScaled`,
-`displayDrawAnimationFromFileScaled`, text, title and status-bar functions.
+`displayDrawAnimationFromFileScaled`, non-blocking animation start/stop/update
+functions, text, title and status-bar functions.
 
 ---
 
@@ -117,6 +118,8 @@ Animation rendering is available through:
 displayDrawAnimationFromFile(0, 0, "animations/boot_pulse.anim", 120, 2);
 displayDrawIconFromFileScaled(0, 0, "icons/wifi_icon.bmp", 2);
 displayDrawAnimationFromFileScaled(0, 0, "animations/boot_pulse.anim", 120, 2, 3);
+displayStartAnimationLoopFromFileScaled(0, 0, "animations/boot_pulse.anim", 120, 3);
+displayStopAnimation();
 ```
 
 Use these calls in `main/core/screens/screen_manager.cpp` for Home/Tools/Status/Settings visuals, or inside an app `run...()` function for workflow-specific art.

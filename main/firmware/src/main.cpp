@@ -431,6 +431,7 @@ void setup() {
 }
 void loop() {
   healthMonitorTick();
+  displayUpdate();
 
   // Novo sistema de input físico
   uiControllerUpdate();

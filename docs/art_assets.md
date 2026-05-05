@@ -251,6 +251,8 @@ frameDelayMs  Delay between frames in milliseconds. Use 80-160 for short UI feed
 loops         Number of times to play the full animation.
 ```
 
+This is a blocking call. It is useful for short confirmations where the app can pause briefly.
+
 Example:
 
 ```cpp
@@ -287,6 +289,8 @@ loops         Number of times to play the full animation.
 scale         Integer pixel multiplier. 1 = original size, 2 = double, 3 = triple.
 ```
 
+This is also a blocking call.
+
 Example:
 
 ```cpp
@@ -294,6 +298,132 @@ displayDrawAnimationFromFileScaled(112, 72, "animations/boot_pulse.anim", 100, 2
 ```
 
 If the animation frame is `16x8`, scale `3` draws each frame as `48x24`.
+
+### displayStartAnimationFromFile
+
+```cpp
+displayStartAnimationFromFile(int x, int y, const String& filename, int frameDelayMs, int loops);
+```
+
+Starts a non-blocking animation. The firmware keeps updating frames from the main `loop()` through `displayUpdate()`.
+
+Parameters:
+
+```txt
+x             Left position where each frame starts.
+y             Top position where each frame starts.
+filename      Animation path relative to /assets.
+frameDelayMs  Delay between frames in milliseconds.
+loops         Number of times to play, or DISPLAY_ANIMATION_LOOP_FOREVER.
+```
+
+Example:
+
+```cpp
+displayStartAnimationFromFile(112, 72, "animations/boot_pulse.anim", 120, 3);
+```
+
+### displayStartAnimationFromFileScaled
+
+```cpp
+displayStartAnimationFromFileScaled(
+  int x,
+  int y,
+  const String& filename,
+  int frameDelayMs,
+  int loops,
+  int scale
+);
+```
+
+Starts a non-blocking scaled animation.
+
+Example:
+
+```cpp
+displayStartAnimationFromFileScaled(112, 72, "animations/boot_pulse.anim", 120, 3, 2);
+```
+
+### displayStartAnimationLoopFromFile
+
+```cpp
+displayStartAnimationLoopFromFile(int x, int y, const String& filename, int frameDelayMs);
+```
+
+Starts a non-blocking animation that runs until stopped.
+
+Example:
+
+```cpp
+displayStartAnimationLoopFromFile(112, 72, "animations/boot_pulse.anim", 120);
+```
+
+### displayStartAnimationLoopFromFileScaled
+
+```cpp
+displayStartAnimationLoopFromFileScaled(int x, int y, const String& filename, int frameDelayMs, int scale);
+```
+
+Starts a non-blocking scaled animation that runs until stopped.
+
+Example:
+
+```cpp
+displayStartAnimationLoopFromFileScaled(248, 118, "animations/boot_pulse.anim", 160, 2);
+```
+
+Use this for idle indicators, active scan indicators and subtle “working” animations that should continue until the screen changes.
+
+### displayStopAnimation
+
+```cpp
+displayStopAnimation();
+```
+
+Stops the active non-blocking animation.
+
+`displayClear()` also stops the active animation, so screen transitions naturally stop screen-local animations.
+
+### displayAnimationIsRunning
+
+```cpp
+bool displayAnimationIsRunning();
+```
+
+Returns `true` if a non-blocking animation is active.
+
+### displayUpdate
+
+```cpp
+displayUpdate();
+```
+
+Advances non-blocking display animations when the next frame is due.
+
+The main firmware loop already calls this. Long-running tool loops should call it periodically if they do not return to the main loop quickly.
+
+### displayDelay
+
+```cpp
+displayDelay(unsigned long durationMs);
+```
+
+Waits while continuing to update non-blocking animations.
+
+Use this inside tools instead of plain `delay()` when an animation should keep moving.
+
+Example:
+
+```cpp
+displayStartAnimationLoopFromFileScaled(112, 72, "animations/boot_pulse.anim", 120, 3);
+
+for (int i = 0; i < 20; i++) {
+  // Read sensor, scan bus or update progress here.
+  displayDelay(100);
+}
+
+displayStopAnimation();
+```
 
 ### displayDrawText
 
@@ -386,13 +516,39 @@ void runMyTool() {
   displayClear();
   displayDrawTitle("My Tool");
   displayDrawText(0, 40, "Starting scan...");
-  displayDrawAnimationFromFileScaled(112, 72, "animations/boot_pulse.anim", 100, 2, 3);
+displayDrawAnimationFromFileScaled(112, 72, "animations/boot_pulse.anim", 100, 2, 3);
   displayDrawStatusBar("SCAN | ACTIVE");
   displayRefresh();
 }
 ```
 
 Keep animations short inside tools. Long blocking animation loops delay input and app flow.
+
+For a continuous process animation:
+
+```cpp
+#include "display_manager.h"
+
+void runMyTool() {
+  displayClear();
+  displayDrawTitle("My Tool");
+  displayDrawText(0, 40, "Scanning...");
+  displayStartAnimationLoopFromFileScaled(112, 72, "animations/boot_pulse.anim", 120, 3);
+  displayDrawStatusBar("SCAN | ACTIVE");
+  displayRefresh();
+
+  for (int sample = 0; sample < 50; sample++) {
+    // Do one unit of work here.
+    displayDelay(100);
+  }
+
+  displayStopAnimation();
+  displayDrawStatusBar("SCAN | DONE");
+  displayRefresh();
+}
+```
+
+Use the continuous form when the animation should run until the process ends or until another screen calls `displayClear()`.
 
 ---
 
@@ -434,6 +590,7 @@ Avoid:
 * full-screen high-frame-count animation
 * drawing over text without clearing the region first
 * loading very large assets repeatedly inside tight loops
+* using plain `delay()` in long tool loops while expecting non-blocking animations to keep moving
 
 Recommended limits:
 
@@ -454,7 +611,9 @@ When adding art:
 2. Convert it with scripts/convert_art.py
 3. Save output under assets/icons, assets/logo or assets/animations
 4. Use displayDrawIconFromFileScaled or displayDrawAnimationFromFileScaled
-5. Run scripts/validate_assets.py
-6. Run scripts/generate_assets.py --clean
-7. Run scripts/build.sh or scripts/release_gate.py
+5. Use displayStartAnimationLoopFromFileScaled for continuous non-blocking animation
+6. Call displayDelay or displayUpdate inside long tool loops
+7. Run scripts/validate_assets.py
+8. Run scripts/generate_assets.py --clean
+9. Run scripts/build.sh or scripts/release_gate.py
 ```

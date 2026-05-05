@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define DISPLAY_ANIMATION_LOOP_FOREVER -1
+
 enum DisplayTheme {
   THEME_DARK,
   THEME_LIGHT,
@@ -42,6 +44,14 @@ void displayDrawIconFromFile(int x, int y, const String& filename);
 void displayDrawIconFromFileScaled(int x, int y, const String& filename, int scale);
 void displayDrawAnimationFromFile(int x, int y, const String& filename, int frameDelayMs, int loops);
 void displayDrawAnimationFromFileScaled(int x, int y, const String& filename, int frameDelayMs, int loops, int scale);
+void displayStartAnimationFromFile(int x, int y, const String& filename, int frameDelayMs, int loops);
+void displayStartAnimationFromFileScaled(int x, int y, const String& filename, int frameDelayMs, int loops, int scale);
+void displayStartAnimationLoopFromFile(int x, int y, const String& filename, int frameDelayMs);
+void displayStartAnimationLoopFromFileScaled(int x, int y, const String& filename, int frameDelayMs, int scale);
+void displayStopAnimation();
+bool displayAnimationIsRunning();
+void displayUpdate();
+void displayDelay(unsigned long durationMs);
 
 void displaySetTheme(DisplayTheme theme);
 DisplayTheme displayGetTheme();

@@ -82,6 +82,7 @@ static void renderHome() {
   displayDrawText(0, 120, "Scripts: microSD /scripts");
   displayDrawText(0, 140, "LEFT/RIGHT: screens");
   displayDrawText(0, 160, "OK: select | BACK: home");
+  displayStartAnimationLoopFromFileScaled(248, 118, "animations/boot_pulse.anim", 160, 2);
 
   displayDrawStatusBar("HOME | READY");
   displayRefresh();
