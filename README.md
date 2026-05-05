@@ -19,7 +19,7 @@ The baseline guarantees:
 * Keep `Logger` for system behavior and `CaptureWriter` for operational evidence
 * Treat microSD as native onboard storage, not as an expansion module
 * Preserve PlatformIO compatibility with `src_dir = main`
-* Keep serial as a temporary debug interface while the physical UI matures
+* Use the 320x240 SPI TFT as the primary UI backend, with serial kept as a debug mirror
 * Keep cloud AI behind a gateway, with no provider API key in firmware
 
 ---
@@ -37,7 +37,7 @@ The baseline guarantees:
 * FileSystem initialization for native microSD directories
 * StoragePolicy separating internal Preferences from operational microSD data
 * InputManager for debounced physical buttons
-* DisplayManager with serial rendering fallback
+* DisplayManager with Adafruit ILI9341 SPI TFT rendering and serial debug mirror
 * ScreenManager for Home, Tools, Status and Settings
 * UIController connecting physical input to screens and AppManager
 * EventBus, StatusManager and AutomationEngine base
@@ -175,7 +175,7 @@ BlackCapy uses a hybrid interface:
 * ASCII for technical data, logs, menus and diagnostics
 * Pixel art for splash screens, icons, status and context
 
-Performance comes first. Serial rendering is a development fallback, not the final primary interface.
+Performance comes first. The physical TFT is the primary interface; serial output remains available for debugging and bench validation.
 
 ---
 

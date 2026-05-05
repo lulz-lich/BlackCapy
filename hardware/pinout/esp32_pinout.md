@@ -36,6 +36,9 @@ scripts/check_hardware_config.py
 | SPI MISO | GPIO 19 |
 | SPI SCK | GPIO 18 |
 | Native microSD CS | GPIO 5 |
+| Display TFT CS | GPIO 15 |
+| Display TFT DC | GPIO 2 |
+| Display TFT RST | GPIO 4 |
 | UART RX | GPIO 16 |
 | UART TX | GPIO 17 |
 

@@ -10,7 +10,7 @@ Serial logs are useful during validation, but the final product direction is the
 
 ```txt
 MCU: ESP32
-Display: 320x240
+Display: 320x240 SPI TFT, ILI9341-compatible by default
 Buttons: UP, DOWN, LEFT, RIGHT, OK, BACK
 Storage: native onboard microSD
 Status: LED and buzzer
@@ -157,13 +157,23 @@ Verify bus availability and pin conflicts:
 
 ## Display
 
-Current firmware has serial rendering fallback.
+Current firmware uses an Adafruit ILI9341 SPI TFT backend, with serial rendering kept as a debug mirror.
 
-Before enabling real display rendering, verify:
+Default display pins are configured in `main/firmware/include/hardware_config.h`:
+
+```txt
+DISPLAY_TFT_CS_PIN  GPIO 15
+DISPLAY_TFT_DC_PIN  GPIO 2
+DISPLAY_TFT_RST_PIN GPIO 4
+DISPLAY_TFT_BL_PIN  -1, unused by default
+```
+
+Verify:
 
 * 320x240 initialization
 * Text rendering
 * Pixel/icon rendering
+* `.anim` frame animation rendering
 * Status bar rendering
 * Screen refresh timing
 * No overlap on Tools, Status and Settings screens

@@ -8,6 +8,12 @@
 // Display
 #define DISPLAY_WIDTH 320
 #define DISPLAY_HEIGHT 240
+#define BLACKCAPY_DISPLAY_BACKEND_TFT 1
+#define DISPLAY_TFT_CS_PIN 15
+#define DISPLAY_TFT_DC_PIN 2
+#define DISPLAY_TFT_RST_PIN 4
+#define DISPLAY_TFT_BL_PIN -1
+#define DISPLAY_TFT_ROTATION 1
 
 // Navigation buttons
 #define BTN_UP_PIN 32

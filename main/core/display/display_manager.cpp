@@ -4,7 +4,18 @@
 #include "filesystem.h"
 #include "storage_policy.h"
 
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+#include <SPI.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_ILI9341.h>
+#endif
+
 static DisplayTheme currentTheme = THEME_DARK;
+
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+static Adafruit_ILI9341 tft(DISPLAY_TFT_CS_PIN, DISPLAY_TFT_DC_PIN, DISPLAY_TFT_RST_PIN);
+static bool tftReady = false;
+#endif
 
 // Theme configurations
 static const ThemeConfig themes[] = {
@@ -87,24 +98,68 @@ static uint8_t* displayLoadBitmap(const String& filename, int* width, int* heigh
 static void displayRenderBitmapASCII(int x, int y, const uint8_t* bitmap, int w, int h);
 static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source);
 static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs);
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+static uint16_t displayColorBackground();
+static uint16_t displayColorBorder();
+static uint16_t displayColorText();
+static uint16_t displayColorPixelOn();
+static uint16_t displayColorPixelOff();
+static void displayRenderBitmapTFT(int x, int y, const uint8_t* bitmap, int w, int h);
+#endif
 
 void displayInit() {
   logInfo("Display manager initialized.");
   logInfo("Target resolution: " + String(DISPLAY_WIDTH) + "x" + String(DISPLAY_HEIGHT));
 
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  SPI.begin(SPI_SCK_PIN, SPI_MISO_PIN, SPI_MOSI_PIN);
+
+  if (DISPLAY_TFT_BL_PIN >= 0) {
+    pinMode(DISPLAY_TFT_BL_PIN, OUTPUT);
+    digitalWrite(DISPLAY_TFT_BL_PIN, HIGH);
+  }
+
+  tft.begin();
+  tft.setRotation(DISPLAY_TFT_ROTATION);
+  tft.setTextWrap(false);
+  tft.fillScreen(displayColorBackground());
+  tftReady = true;
+
+  logInfo("Display backend: Adafruit ILI9341 SPI TFT");
+  Serial.println("[DISPLAY] TFT backend active; serial mirror enabled.");
+#else
   Serial.println("[DISPLAY] Running in serial-render fallback mode.");
+#endif
 }
 
 void displayClear() {
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  if (tftReady) {
+    tft.fillScreen(displayColorBackground());
+  }
+#endif
   Serial.println();
   Serial.println("[DISPLAY] CLEAR");
 }
 
 void displayRefresh() {
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  if (tftReady) {
+    return;
+  }
+#endif
   Serial.println("[DISPLAY] REFRESH");
 }
 
 void displayDrawText(int x, int y, const String& text) {
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  if (tftReady) {
+    tft.setTextColor(displayColorText(), displayColorBackground());
+    tft.setTextSize(1);
+    tft.setCursor(x, y);
+    tft.print(text);
+  }
+#endif
   Serial.print("[TEXT x=");
   Serial.print(x);
   Serial.print(" y=");
@@ -116,6 +171,16 @@ void displayDrawText(int x, int y, const String& text) {
 void displayDrawTitle(const String& title) {
   const ThemeConfig* theme = &themes[currentTheme];
   String border(40, theme->borderChar[0]);
+
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  if (tftReady) {
+    tft.fillRect(0, 0, DISPLAY_WIDTH, 22, displayColorBorder());
+    tft.setTextSize(2);
+    tft.setTextColor(displayColorBackground(), displayColorBorder());
+    tft.setCursor(6, 4);
+    tft.print(title);
+  }
+#endif
 
   Serial.println();
   if (theme->useColors) {
@@ -147,11 +212,26 @@ void displayDrawTitle(const String& title) {
 }
 
 void displayDrawStatusBar(const String& status) {
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  if (tftReady) {
+    int y = DISPLAY_HEIGHT - 14;
+    tft.fillRect(0, y, DISPLAY_WIDTH, 14, displayColorBorder());
+    tft.setTextSize(1);
+    tft.setTextColor(displayColorBackground(), displayColorBorder());
+    tft.setCursor(4, y + 3);
+    tft.print(status.substring(0, 52));
+  }
+#endif
   Serial.print("[STATUS] ");
   Serial.println(status);
 }
 
 void displayDrawBox(int x, int y, int w, int h) {
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  if (tftReady) {
+    tft.drawRect(x, y, w, h, displayColorBorder());
+  }
+#endif
   Serial.print("[BOX x=");
   Serial.print(x);
   Serial.print(" y=");
@@ -165,6 +245,19 @@ void displayDrawBox(int x, int y, int w, int h) {
 
 void displayDrawAsciiFrame(int x, int y, int w, int h, const String& title) {
   const ThemeConfig* theme = &themes[currentTheme];
+
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  if (tftReady) {
+    tft.drawRect(x, y, w, h, displayColorBorder());
+    if (title.length() > 0) {
+      tft.fillRect(x + 1, y + 1, w - 2, 12, displayColorBorder());
+      tft.setTextSize(1);
+      tft.setTextColor(displayColorBackground(), displayColorBorder());
+      tft.setCursor(x + 4, y + 3);
+      tft.print(title.substring(0, max(0, (w - 8) / 6)));
+    }
+  }
+#endif
 
   Serial.println();
   String topBottom = "+";
@@ -232,6 +325,11 @@ void displayDrawPixelIcon(int x, int y, const uint8_t* bitmap, int w, int h) {
     return;
   }
 
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+  if (tftReady) {
+    displayRenderBitmapTFT(x, y, bitmap, w, h);
+  }
+#endif
   displayRenderBitmapASCII(x, y, bitmap, w, h);
 }
 
@@ -413,6 +511,103 @@ static void displayRenderBitmapASCII(int x, int y, const uint8_t* bitmap, int w,
     Serial.println();
   }
 }
+
+#if BLACKCAPY_DISPLAY_BACKEND_TFT
+static uint16_t displayColorBackground() {
+  switch (currentTheme) {
+    case THEME_LIGHT:
+      return ILI9341_WHITE;
+    case THEME_TERMINAL:
+    case THEME_MATRIX:
+    case THEME_MINIMAL:
+    case THEME_DARK:
+    default:
+      return ILI9341_BLACK;
+  }
+}
+
+static uint16_t displayColorBorder() {
+  switch (currentTheme) {
+    case THEME_LIGHT:
+      return ILI9341_BLACK;
+    case THEME_TERMINAL:
+    case THEME_MATRIX:
+      return ILI9341_GREEN;
+    case THEME_MINIMAL:
+      return ILI9341_CYAN;
+    case THEME_DARK:
+    default:
+      return ILI9341_WHITE;
+  }
+}
+
+static uint16_t displayColorText() {
+  switch (currentTheme) {
+    case THEME_LIGHT:
+      return ILI9341_BLACK;
+    case THEME_TERMINAL:
+    case THEME_MATRIX:
+      return ILI9341_GREEN;
+    case THEME_MINIMAL:
+      return ILI9341_WHITE;
+    case THEME_DARK:
+    default:
+      return ILI9341_WHITE;
+  }
+}
+
+static uint16_t displayColorPixelOn() {
+  switch (currentTheme) {
+    case THEME_LIGHT:
+      return ILI9341_BLACK;
+    case THEME_TERMINAL:
+      return ILI9341_YELLOW;
+    case THEME_MATRIX:
+      return ILI9341_GREEN;
+    case THEME_MINIMAL:
+      return ILI9341_CYAN;
+    case THEME_DARK:
+    default:
+      return ILI9341_WHITE;
+  }
+}
+
+static uint16_t displayColorPixelOff() {
+  switch (currentTheme) {
+    case THEME_LIGHT:
+      return ILI9341_WHITE;
+    case THEME_TERMINAL:
+    case THEME_MATRIX:
+    case THEME_MINIMAL:
+    case THEME_DARK:
+    default:
+      return displayColorBackground();
+  }
+}
+
+static void displayRenderBitmapTFT(int x, int y, const uint8_t* bitmap, int w, int h) {
+  uint16_t onColor = displayColorPixelOn();
+  uint16_t offColor = displayColorPixelOff();
+
+  for (int row = 0; row < h; row++) {
+    for (int col = 0; col < w; col++) {
+      int bitIndex = row * w + col;
+      int byteIndex = bitIndex / 8;
+      int bitOffset = 7 - (bitIndex % 8);
+      bool pixel = (bitmap[byteIndex] & (1 << bitOffset)) != 0;
+
+      int drawX = x + col;
+      int drawY = y + row;
+
+      if (drawX < 0 || drawX >= DISPLAY_WIDTH || drawY < 0 || drawY >= DISPLAY_HEIGHT) {
+        continue;
+      }
+
+      tft.drawPixel(drawX, drawY, pixel ? onColor : offColor);
+    }
+  }
+}
+#endif
 
 static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source) {
   if (width <= 0 || height <= 0 || bits.length() == 0) {

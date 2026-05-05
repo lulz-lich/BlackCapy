@@ -72,14 +72,12 @@ static String compactText(const String& text, int maxChars) {
 static void renderHome() {
   displayClear();
 
-  // Show logo
-  uiShowLogoHybrid();
-
   displayDrawTitle("BlackCapy");
+  displayDrawIconFromFile(248, 34, "logo/blackcapy_logo.bmp");
 
   displayDrawText(0, 40, "Professional Toolkit");
   displayDrawText(0, 60, "Hybrid UI: Pixel Art + ASCII");
-  displayDrawText(0, 80, "Display: 320x240 (Serial Fallback)");
+  displayDrawText(0, 80, "Display: 320x240 SPI TFT");
   displayDrawText(0, 100, "Assets: microSD /assets");
   displayDrawText(0, 120, "Scripts: microSD /scripts");
   displayDrawText(0, 140, "LEFT/RIGHT: screens");

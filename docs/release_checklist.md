@@ -54,6 +54,7 @@ Expected core properties:
 * `CaptureWriter` categories are validated
 * physical UI flow is Home, Tools, Status and Settings
 * Tools renders 4 apps per page
+* DisplayManager uses the Adafruit ILI9341 SPI TFT backend by default
 * cloud AI requires gateway configuration and recent physical OK confirmation
 
 ---
@@ -109,7 +110,7 @@ The gateway must keep provider credentials off the ESP32.
 Before calling a hardware build field-ready, resolve or intentionally document:
 
 * GPIO conflicts in `hardware_config.h`
-* display controller and pin mapping
+* display pin mapping on the target PCB
 * physical button mapping
 * native microSD boot and write behavior
 * ADC module ID resistor ladder values

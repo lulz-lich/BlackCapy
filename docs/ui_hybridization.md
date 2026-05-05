@@ -10,7 +10,8 @@ Performance comes before aesthetics.
 
 ## Current State
 
-Current rendering is serial fallback plus text-bitmap asset loading from native microSD.
+Current rendering uses the real SPI TFT backend plus serial debug mirroring.
+Text-bitmap assets load from native microSD.
 
 The firmware can load simple text-based bitmap assets from:
 
@@ -89,7 +90,7 @@ uiShowIconRFHybrid();
 uiShowIconSubGHzHybrid();
 ```
 
-These functions attempt asset rendering and keep ASCII output available for serial fallback.
+These functions render assets through the TFT backend and keep ASCII output available for serial debug mirroring.
 
 Animation rendering is available through:
 
@@ -103,8 +104,8 @@ displayDrawAnimationFromFile(0, 0, "animations/boot_pulse.anim", 120, 2);
 
 Planned evolution:
 
-* Real 320x240 display backend
-* Pixel art without serial duplication
+* Hardware-specific polish for the selected target board
+* Optional serial mirror toggle
 * Static ASCII assets
 * Animated ASCII/pixel assets through `.anim` frame files
 * Static pixel art assets
