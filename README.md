@@ -139,6 +139,14 @@ Prepare a development microSD tree:
 scripts/generate_assets.py --clean
 ```
 
+Convert artist-friendly image files into BlackCapy display assets:
+
+```bash
+python3 -m pip install pillow
+scripts/convert_art.py art/icon.png -o assets/icons/icon.bmp --max-width 32 --max-height 32
+scripts/convert_art.py art/boot.gif -o assets/animations/boot.anim --max-width 96 --max-height 64
+```
+
 More details are in [`usage.md`](usage.md). Hardware validation steps are in [`docs/hardware.md`](docs/hardware.md).
 
 ---

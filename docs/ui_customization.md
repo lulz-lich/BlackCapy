@@ -47,6 +47,7 @@ UI assets are loaded from native microSD:
 ```txt
 /assets/icons/
 /assets/logo/
+/assets/animations/
 /themes/
 ```
 
@@ -66,18 +67,33 @@ scripts/validate_assets.py
 
 ## Text Bitmap Assets
 
-Current `.bmp` files are text bitmaps, not binary BMP files.
+Current project `.bmp` files are BlackCapy text bitmaps, not binary BMP files.
 
 Rules:
 
 * Comment lines begin with `#`
 * Pixel rows use only `0` and `1`
 * All pixel rows in one file must have the same width
+* Width and height are detected by the loader
 
 For lightweight animation, use `.anim` files under `/assets/animations/`.
 Each frame uses the same `0` and `1` row format, and frames are separated by a
 line containing only `---`.
-* Width and height are detected by the loader
+
+Artists can work in common tools and export normal image files. Convert them with:
+
+```bash
+python3 -m pip install pillow
+scripts/convert_art.py art/icon.png -o assets/icons/icon.bmp --max-width 32 --max-height 32
+scripts/convert_art.py art/boot.gif -o assets/animations/boot.anim --max-width 96 --max-height 64
+```
+
+Supported converter inputs:
+
+```txt
+Static: PNG, BMP, JPG, JPEG, WEBP
+Animated: GIF, APNG
+```
 
 ---
 
@@ -104,5 +120,4 @@ Planned areas:
 * Support static ASCII assets
 * Support animated ASCII/pixel assets with `.anim` files
 * Support static pixel art
-* Add real 320x240 display rendering
 * Add theme-aware color palettes

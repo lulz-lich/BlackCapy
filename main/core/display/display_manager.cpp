@@ -96,15 +96,15 @@ static const int themeCount = sizeof(themes) / sizeof(themes[0]);
 // Pixel art rendering functions
 static uint8_t* displayLoadBitmap(const String& filename, int* width, int* height);
 static void displayRenderBitmapASCII(int x, int y, const uint8_t* bitmap, int w, int h);
-static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source);
-static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs);
+static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source, int scale);
+static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs, int scale);
 #if BLACKCAPY_DISPLAY_BACKEND_TFT
 static uint16_t displayColorBackground();
 static uint16_t displayColorBorder();
 static uint16_t displayColorText();
 static uint16_t displayColorPixelOn();
 static uint16_t displayColorPixelOff();
-static void displayRenderBitmapTFT(int x, int y, const uint8_t* bitmap, int w, int h);
+static void displayRenderBitmapTFT(int x, int y, const uint8_t* bitmap, int w, int h, int scale);
 #endif
 
 void displayInit() {
@@ -320,25 +320,35 @@ void displayDrawAsciiFrame(int x, int y, int w, int h, const String& title) {
 }
 
 void displayDrawPixelIcon(int x, int y, const uint8_t* bitmap, int w, int h) {
+  displayDrawPixelIconScaled(x, y, bitmap, w, h, 1);
+}
+
+void displayDrawPixelIconScaled(int x, int y, const uint8_t* bitmap, int w, int h, int scale) {
   if (bitmap == nullptr) {
     Serial.println("[DISPLAY] No bitmap data.");
     return;
   }
 
+  int renderScale = scale > 0 ? scale : 1;
+
 #if BLACKCAPY_DISPLAY_BACKEND_TFT
   if (tftReady) {
-    displayRenderBitmapTFT(x, y, bitmap, w, h);
+    displayRenderBitmapTFT(x, y, bitmap, w, h, renderScale);
   }
 #endif
   displayRenderBitmapASCII(x, y, bitmap, w, h);
 }
 
 void displayDrawIconFromFile(int x, int y, const String& filename) {
+  displayDrawIconFromFileScaled(x, y, filename, 1);
+}
+
+void displayDrawIconFromFileScaled(int x, int y, const String& filename, int scale) {
   int width, height;
   uint8_t* bitmap = displayLoadBitmap(filename, &width, &height);
 
   if (bitmap != nullptr) {
-    displayDrawPixelIcon(x, y, bitmap, width, height);
+    displayDrawPixelIconScaled(x, y, bitmap, width, height, scale);
     free(bitmap);
   } else {
     Serial.println("[DISPLAY] Failed to load icon: " + filename);
@@ -346,6 +356,10 @@ void displayDrawIconFromFile(int x, int y, const String& filename) {
 }
 
 void displayDrawAnimationFromFile(int x, int y, const String& filename, int frameDelayMs, int loops) {
+  displayDrawAnimationFromFileScaled(x, y, filename, frameDelayMs, loops, 1);
+}
+
+void displayDrawAnimationFromFileScaled(int x, int y, const String& filename, int frameDelayMs, int loops, int scale) {
   String assetsPath = storagePolicyGetAssetsPath();
   String fullPath = assetsPath + "/" + filename;
 
@@ -364,10 +378,11 @@ void displayDrawAnimationFromFile(int x, int y, const String& filename, int fram
 
   int delayMs = frameDelayMs > 0 ? frameDelayMs : 120;
   int loopCount = loops > 0 ? loops : 1;
+  int renderScale = scale > 0 ? scale : 1;
   int totalFrames = 0;
 
   for (int loop = 0; loop < loopCount; loop++) {
-    int rendered = displayRenderAnimationPass(x, y, animationData, fullPath, delayMs);
+    int rendered = displayRenderAnimationPass(x, y, animationData, fullPath, delayMs, renderScale);
     if (rendered <= 0) {
       logWarn("Animation file has no renderable frames: " + fullPath);
       return;
@@ -585,9 +600,10 @@ static uint16_t displayColorPixelOff() {
   }
 }
 
-static void displayRenderBitmapTFT(int x, int y, const uint8_t* bitmap, int w, int h) {
+static void displayRenderBitmapTFT(int x, int y, const uint8_t* bitmap, int w, int h, int scale) {
   uint16_t onColor = displayColorPixelOn();
   uint16_t offColor = displayColorPixelOff();
+  int renderScale = scale > 0 ? scale : 1;
 
   for (int row = 0; row < h; row++) {
     for (int col = 0; col < w; col++) {
@@ -596,20 +612,24 @@ static void displayRenderBitmapTFT(int x, int y, const uint8_t* bitmap, int w, i
       int bitOffset = 7 - (bitIndex % 8);
       bool pixel = (bitmap[byteIndex] & (1 << bitOffset)) != 0;
 
-      int drawX = x + col;
-      int drawY = y + row;
+      int drawX = x + (col * renderScale);
+      int drawY = y + (row * renderScale);
 
       if (drawX < 0 || drawX >= DISPLAY_WIDTH || drawY < 0 || drawY >= DISPLAY_HEIGHT) {
         continue;
       }
 
-      tft.drawPixel(drawX, drawY, pixel ? onColor : offColor);
+      if (renderScale == 1) {
+        tft.drawPixel(drawX, drawY, pixel ? onColor : offColor);
+      } else {
+        tft.fillRect(drawX, drawY, renderScale, renderScale, pixel ? onColor : offColor);
+      }
     }
   }
 }
 #endif
 
-static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source) {
+static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source, int scale) {
   if (width <= 0 || height <= 0 || bits.length() == 0) {
     return false;
   }
@@ -628,12 +648,12 @@ static bool displayRenderFrameBits(int x, int y, const String& bits, int width, 
     }
   }
 
-  displayDrawPixelIcon(x, y, bitmap, width, height);
+  displayDrawPixelIconScaled(x, y, bitmap, width, height, scale);
   free(bitmap);
   return true;
 }
 
-static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs) {
+static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs, int scale) {
   String bits = "";
   int width = 0;
   int height = 0;
@@ -656,7 +676,7 @@ static int displayRenderAnimationPass(int x, int y, const String& animationData,
     }
 
     if (line == "---") {
-      if (displayRenderFrameBits(x, y, bits, width, height, source)) {
+      if (displayRenderFrameBits(x, y, bits, width, height, source, scale)) {
         frameCount++;
         delay(frameDelayMs);
       }
@@ -695,7 +715,7 @@ static int displayRenderAnimationPass(int x, int y, const String& animationData,
     height++;
   }
 
-  if (displayRenderFrameBits(x, y, bits, width, height, source)) {
+  if (displayRenderFrameBits(x, y, bits, width, height, source, scale)) {
     frameCount++;
     delay(frameDelayMs);
   }

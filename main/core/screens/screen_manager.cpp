@@ -27,28 +27,28 @@ ScreenId screenGet() {
 static void renderToolIcon(int toolId, int x, int y) {
   switch (toolId) {
     case TOOL_WIFI_SCANNER:
-      uiShowIconWiFiHybridAt(x, y);
+      displayDrawIconFromFileScaled(x, y, "icons/wifi_icon.bmp", 2);
       break;
     case TOOL_BLE_SCANNER:
-      uiShowIconBLEHybridAt(x, y);
+      displayDrawIconFromFileScaled(x, y, "icons/ble_icon.bmp", 2);
       break;
     case TOOL_GPIO_CONSOLE:
-      uiShowIconGPIOHybridAt(x, y);
+      displayDrawIconFromFileScaled(x, y, "icons/gpio_icon.bmp", 2);
       break;
     case TOOL_RF_ANALYZER:
-      uiShowIconRFHybridAt(x, y);
+      displayDrawIconFromFileScaled(x, y, "icons/rf_icon.bmp", 2);
       break;
     case TOOL_SUBGHZ_SCANNER:
-      uiShowIconSubGHzHybridAt(x, y);
+      displayDrawIconFromFileScaled(x, y, "icons/subghz_icon.bmp", 2);
       break;
     case TOOL_SIGNAL_DATABASE:
-      uiShowIconSignalDatabaseHybridAt(x, y);
+      displayDrawIconFromFileScaled(x, y, "icons/signal_icon.bmp", 2);
       break;
     case TOOL_AI_ANALYZER:
-      uiShowIconAIHybridAt(x, y);
+      displayDrawIconFromFileScaled(x, y, "icons/ai_icon.bmp", 2);
       break;
     case TOOL_AI_REPORT_VIEWER:
-      uiShowIconAIHybridAt(x, y);
+      displayDrawIconFromFileScaled(x, y, "icons/ai_icon.bmp", 2);
       break;
     default:
       // No specific icon, show generic
@@ -115,7 +115,7 @@ static void renderTools() {
     }
 
     // Render icon for this tool
-    int iconY = 35 + ((i - start) * 24);
+    int iconY = 34 + ((i - start) * 28);
     renderToolIcon(app->id, 0, iconY);
 
     // Render text
@@ -133,7 +133,7 @@ static void renderTools() {
       line += " [LOCK]";
     }
 
-    displayDrawText(25, 40 + ((i - start) * 24), line);
+    displayDrawText(42, 42 + ((i - start) * 28), line);
   }
 
   AppEntry* selectedApp = appManagerGetSelected();

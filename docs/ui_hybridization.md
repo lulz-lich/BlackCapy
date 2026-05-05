@@ -18,6 +18,7 @@ The firmware can load simple text-based bitmap assets from:
 ```txt
 /assets/icons/
 /assets/logo/
+/assets/animations/
 ```
 
 The local development generator prepares those paths with:
@@ -49,6 +50,7 @@ Rules:
 * Only `0` and `1` are accepted as pixel data
 * Width and height are detected by the loader
 * Files use `.bmp` names for project convention, but are text bitmaps today
+* Use `scripts/convert_art.py` to convert normal PNG/BMP/JPG/WEBP art into this format
 
 Animated pixel art uses `.anim` files with the same `0` and `1` rows. Separate
 frames with a line containing only:
@@ -75,6 +77,14 @@ Validate assets with:
 scripts/validate_assets.py
 ```
 
+Convert artwork with:
+
+```bash
+python3 -m pip install pillow
+scripts/convert_art.py art/icon.png -o assets/icons/icon.bmp --max-width 32 --max-height 32
+scripts/convert_art.py art/boot.gif -o assets/animations/boot.anim --max-width 96 --max-height 64
+```
+
 ---
 
 ## Hybrid Functions
@@ -96,6 +106,8 @@ Animation rendering is available through:
 
 ```cpp
 displayDrawAnimationFromFile(0, 0, "animations/boot_pulse.anim", 120, 2);
+displayDrawIconFromFileScaled(0, 0, "icons/wifi_icon.bmp", 2);
+displayDrawAnimationFromFileScaled(0, 0, "animations/boot_pulse.anim", 120, 2, 3);
 ```
 
 ---
