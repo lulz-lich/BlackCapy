@@ -54,6 +54,7 @@ Examples:
 * Random Generator
 * Settings
 * Diagnostics
+* Factory Test
 * Health Monitor
 * Reboot
 
@@ -74,6 +75,7 @@ Examples:
 * Analog Reader
 * I2C Scanner
 * UART Monitor
+* Button Calibration
 
 ### Storage And Evidence
 
@@ -125,6 +127,12 @@ subghz db
 `subghz db` writes `/signals/subghz_signals.csv` with timestamp, frequency, RSSI, payload length, HEX payload and Base64 payload. Timeouts and receive errors remain in the capture log, but are excluded from the signal database.
 
 Signal Database shows the latest derived records from microSD. It does not replace raw captures and does not write evidence.
+
+### Factory And Calibration
+
+Factory Test verifies release-critical runtime assumptions from the device itself: firmware version, AppManager registry, heap reserve, WiFi mode, microSD availability, required assets, module ADC, button ADC and AI gateway config parsing.
+
+Button Calibration samples `BTN_ADC_PIN`, prints expected ladder ranges from `hardware_config.h` and reports average, minimum and maximum ADC values. Use it when validating a new board revision or changing resistor values.
 
 ---
 

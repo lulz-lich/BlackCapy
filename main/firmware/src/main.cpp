@@ -50,6 +50,8 @@
 #include "gps_status.h"
 #include "lora_status.h"
 #include "diagnostics_app.h"
+#include "factory_test.h"
+#include "button_calibration.h"
 #include "storage_policy.h"
 #include "storage_status.h"
 #include "uart_monitor.h"
@@ -176,6 +178,24 @@ AppEntry apps[] = {
     APP_PERMISSION_SYSTEM,
     APP_STATUS_STABLE,
     runDiagnosticsApp
+  },
+  {
+    TOOL_FACTORY_TEST,
+    "Factory Test",
+    "system",
+    "Runs production bench checks for display, storage, ADC, assets and AI config",
+    APP_PERMISSION_SYSTEM,
+    APP_STATUS_STABLE,
+    runFactoryTest
+  },
+  {
+    TOOL_BUTTON_CALIBRATION,
+    "Button Calibration",
+    "hardware",
+    "Samples the ADC ladder used by physical navigation buttons",
+    APP_PERMISSION_GPIO,
+    APP_STATUS_STABLE,
+    runButtonCalibration
   },
   {
     TOOL_UART_MONITOR,

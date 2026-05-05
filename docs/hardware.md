@@ -106,6 +106,29 @@ Expected behavior:
 * OK runs selected app if runnable
 * BACK returns to Home
 
+Run the `Button Calibration` app on every hardware revision. Record the observed average, minimum and maximum ADC values for each ladder state, then update `BTN_*_ADC_VALUE` and `BTN_ADC_TOLERANCE` only after bench measurements are stable.
+
+Hold the hardware revision if the reported spread is wider than `BTN_ADC_TOLERANCE` while no button is being moved.
+
+---
+
+## Factory Test
+
+Run the `Factory Test` app after flashing and after copying the microSD release tree.
+
+Expected checks:
+
+* firmware version is present
+* AppManager registry is populated
+* heap reserve is acceptable
+* WiFi is in STA mode
+* microSD is available
+* logo, icon and animation assets exist
+* module ADC and button ADC read inside the ESP32 ADC range
+* AI gateway config parser is usable
+
+The app writes `/reports/factory_test.txt` when microSD is available. Keep that report with bench records for the device batch.
+
 ---
 
 ## Module Detection

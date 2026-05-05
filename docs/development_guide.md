@@ -130,20 +130,27 @@ runWifiScanner();
 
 # App Standard
 
-Every app must expose:
+Every app must expose one entry function and be registered once through `AppManager`:
 
 ```cpp
-const char* getName();
-const char* getDescription();
-void run();
+void runExampleTool();
 ```
 
-Optional:
+Registration lives in `main/firmware/src/main.cpp` as a seven-field `AppEntry`:
 
 ```cpp
-void init();
-void stop();
+{
+  TOOL_EXAMPLE_TOOL,
+  "Example Tool",
+  "hardware",
+  "Short description",
+  APP_PERMISSION_GPIO,
+  APP_STATUS_STABLE,
+  runExampleTool
+}
 ```
+
+Do not create a second tool list or a per-folder registry.
 
 ---
 
@@ -196,7 +203,7 @@ Log levels:
 - ERROR
 - DEBUG
 
-Never print directly to Serial outside Logger.
+Use `Logger` for system behavior that must be retained. Apps may mirror short technical output to Serial while the serial console remains a debug interface, but Serial output must not replace `Logger`, `CaptureWriter` or the physical display.
 
 Wrong:
 

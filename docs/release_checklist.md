@@ -1,4 +1,4 @@
-# BlackCapy 1.0.1 Release Checklist
+# BlackCapy 1.0.2 Release Checklist
 
 This checklist defines the software release baseline for BlackCapy.
 
@@ -37,6 +37,7 @@ scripts/build.sh
 ```
 
 `release_gate.py` is the market-release gate. `build.sh` remains a faster developer build gate.
+GitHub Actions runs the same release gate on `main`, pull requests and manual workflow dispatch.
 
 The packaged output is written to:
 
@@ -53,7 +54,7 @@ It contains firmware binaries, a ready microSD tree and `SHA256SUMS`.
 Expected firmware version:
 
 ```txt
-BLACKCAPY_VERSION = 1.0.1
+BLACKCAPY_VERSION = 1.0.2
 ```
 
 Expected core properties:
@@ -67,6 +68,7 @@ Expected core properties:
 * Tools renders 4 apps per page
 * DisplayManager uses the Adafruit ILI9341 SPI TFT backend by default
 * physical buttons use the ADC ladder backend by default
+* Factory Test and Button Calibration are registered through `AppManager`
 * development module mocks are disabled
 * cloud AI requires gateway configuration and recent physical OK confirmation
 

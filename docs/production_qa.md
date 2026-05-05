@@ -12,6 +12,8 @@ Run:
 scripts/release_gate.py
 ```
 
+The repository CI runs the same gate through GitHub Actions for pushes to `main`, pull requests and manual dispatch.
+
 Expected output:
 
 ```txt
@@ -77,6 +79,8 @@ Pass criteria:
 * ADC button ladder triggers UP, DOWN, LEFT, RIGHT, OK and BACK
 * microSD initializes and writes a log
 * AppManager reports all registered apps
+* Factory Test completes without failed checks
+* Button Calibration reports stable ADC readings for the target ladder
 * Module ADC ID detects known resistor values
 * Locked apps remain locked when their module is absent
 * CaptureWriter writes evidence for supported capture categories
@@ -90,6 +94,8 @@ Hold shipment if any of these fail:
 
 * `scripts/release_gate.py`
 * `scripts/check_hardware_config.py --strict`
+* Factory Test failure
+* Button Calibration instability
 * TFT boot rendering
 * Button ladder mapping
 * microSD write test

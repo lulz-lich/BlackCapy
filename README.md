@@ -10,7 +10,7 @@ BlackCapy is inspired by Arch Linux principles: freedom, modularity, control and
 
 ## Release Baseline
 
-BlackCapy 1.0.1 is the current software baseline for the ESP32 firmware, microSD runtime tree, validation scripts and AI companion gateway.
+BlackCapy 1.0.2 is the current software baseline for the ESP32 firmware, microSD runtime tree, validation scripts, CI release gate and AI companion gateway.
 
 The baseline guarantees:
 
@@ -23,6 +23,7 @@ The baseline guarantees:
 * Use ADC-ladder physical buttons to keep GPIO available for display, storage and expansion
 * Keep development module mocks disabled in production firmware
 * Keep cloud AI behind a gateway, with no provider API key in firmware
+* Keep factory validation and button calibration available as first-class apps
 
 ---
 
@@ -51,6 +52,7 @@ BlackCapy currently registers apps through `main/firmware/src/main.cpp` using `A
 Implemented or scaffolded app areas include:
 
 * System, diagnostics, health and settings
+* Factory test and button calibration
 * WiFi and BLE
 * GPIO, PWM, analog, I2C and UART
 * Storage, logs, captures, signal databases and AI companion reports
@@ -135,6 +137,8 @@ Production release gate:
 scripts/release_gate.py
 ```
 
+The same release gate runs in GitHub Actions on `main`, pull requests and manual workflow dispatch.
+
 Create release artifacts manually after a successful build:
 
 ```bash
@@ -214,6 +218,6 @@ BadUSB is not a priority. If it is added later, it should be an external hardwar
 
 ## Status
 
-Phase: 1.0.1 release baseline.
+Phase: 1.0.2 release baseline.
 
 The firmware, tooling, docs and gateway are validation-gated. Market release still requires physical target-board validation, enclosure validation, regulatory review and manufacturing QA.
