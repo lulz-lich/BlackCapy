@@ -49,6 +49,25 @@ Rules:
 * Width and height are detected by the loader
 * Files use `.bmp` names for project convention, but are text bitmaps today
 
+Animated pixel art uses `.anim` files with the same `0` and `1` rows. Separate
+frames with a line containing only:
+
+```txt
+---
+```
+
+Example:
+
+```txt
+001100
+011110
+001100
+---
+000000
+011110
+000000
+```
+
 Validate assets with:
 
 ```bash
@@ -72,6 +91,12 @@ uiShowIconSubGHzHybrid();
 
 These functions attempt asset rendering and keep ASCII output available for serial fallback.
 
+Animation rendering is available through:
+
+```cpp
+displayDrawAnimationFromFile(0, 0, "animations/boot_pulse.anim", 120, 2);
+```
+
 ---
 
 ## Future Work
@@ -81,7 +106,7 @@ Planned evolution:
 * Real 320x240 display backend
 * Pixel art without serial duplication
 * Static ASCII assets
-* Animated ASCII assets
+* Animated ASCII/pixel assets through `.anim` frame files
 * Static pixel art assets
 * Animated pixel art assets
 * Theme-aware palettes

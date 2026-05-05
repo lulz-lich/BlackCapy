@@ -44,6 +44,48 @@ def validate_bitmap(path: Path) -> list[str]:
     return errors
 
 
+def validate_animation(path: Path) -> list[str]:
+    errors: list[str] = []
+    width: int | None = None
+    height = 0
+    frames = 0
+
+    for line_number, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        if line == "---":
+            if height == 0:
+                errors.append(f"{path}: line {line_number} has an empty frame before separator.")
+            else:
+                frames += 1
+            width = None
+            height = 0
+            continue
+
+        if any(char not in "01" for char in line):
+            errors.append(f"{path}: line {line_number} is not binary animation data.")
+            continue
+
+        if width is None:
+            width = len(line)
+        elif len(line) != width:
+            errors.append(
+                f"{path}: line {line_number} width {len(line)} does not match {width}."
+            )
+
+        height += 1
+
+    if height > 0:
+        frames += 1
+
+    if frames == 0:
+        errors.append(f"{path}: no animation frames found.")
+
+    return errors
+
+
 def validate_script(path: Path) -> list[str]:
     errors: list[str] = []
 
@@ -133,6 +175,7 @@ def main() -> int:
     errors: list[str] = []
 
     bitmap_files = sorted(ASSETS.rglob("*.bmp")) if ASSETS.exists() else []
+    animation_files = sorted(ASSETS.rglob("*.anim")) if ASSETS.exists() else []
     script_files = sorted(ASSETS.glob("*.txt")) if ASSETS.exists() else []
     script_files += sorted(SCRIPTS.glob("*.txt")) if SCRIPTS.exists() else []
     config_files = sorted(ASSETS.glob("subghz_scan.cfg")) if ASSETS.exists() else []
@@ -145,6 +188,9 @@ def main() -> int:
 
     for path in bitmap_files:
         errors.extend(validate_bitmap(path))
+
+    for path in animation_files:
+        errors.extend(validate_animation(path))
 
     for path in script_files:
         errors.extend(validate_script(path))
@@ -160,7 +206,8 @@ def main() -> int:
 
     print(
         "Asset validation passed: "
-        f"{len(bitmap_files)} bitmap assets, {len(script_files)} scripts, "
+        f"{len(bitmap_files)} bitmap assets, {len(animation_files)} animations, "
+        f"{len(script_files)} scripts, "
         f"{len(config_files)} configs."
     )
     return 0

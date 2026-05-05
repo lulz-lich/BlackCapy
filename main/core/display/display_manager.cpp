@@ -85,6 +85,8 @@ static const int themeCount = sizeof(themes) / sizeof(themes[0]);
 // Pixel art rendering functions
 static uint8_t* displayLoadBitmap(const String& filename, int* width, int* height);
 static void displayRenderBitmapASCII(int x, int y, const uint8_t* bitmap, int w, int h);
+static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source);
+static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs);
 
 void displayInit() {
   logInfo("Display manager initialized.");
@@ -245,6 +247,39 @@ void displayDrawIconFromFile(int x, int y, const String& filename) {
   }
 }
 
+void displayDrawAnimationFromFile(int x, int y, const String& filename, int frameDelayMs, int loops) {
+  String assetsPath = storagePolicyGetAssetsPath();
+  String fullPath = assetsPath + "/" + filename;
+
+  if (!fileSystemExists(fullPath)) {
+    logWarn("Animation file not found: " + fullPath);
+    Serial.println("[DISPLAY] Failed to load animation: " + filename);
+    return;
+  }
+
+  String animationData = fileSystemRead(fullPath);
+  if (animationData.length() == 0) {
+    logWarn("Animation file is empty or unreadable: " + fullPath);
+    Serial.println("[DISPLAY] Failed to load animation: " + filename);
+    return;
+  }
+
+  int delayMs = frameDelayMs > 0 ? frameDelayMs : 120;
+  int loopCount = loops > 0 ? loops : 1;
+  int totalFrames = 0;
+
+  for (int loop = 0; loop < loopCount; loop++) {
+    int rendered = displayRenderAnimationPass(x, y, animationData, fullPath, delayMs);
+    if (rendered <= 0) {
+      logWarn("Animation file has no renderable frames: " + fullPath);
+      return;
+    }
+    totalFrames += rendered;
+  }
+
+  logInfo("Animation rendered: " + filename + " frames=" + String(totalFrames));
+}
+
 void displaySetTheme(DisplayTheme theme) {
   if (theme >= 0 && theme < themeCount) {
     currentTheme = theme;
@@ -377,4 +412,98 @@ static void displayRenderBitmapASCII(int x, int y, const uint8_t* bitmap, int w,
     }
     Serial.println();
   }
+}
+
+static bool displayRenderFrameBits(int x, int y, const String& bits, int width, int height, const String& source) {
+  if (width <= 0 || height <= 0 || bits.length() == 0) {
+    return false;
+  }
+
+  size_t dataSize = (bits.length() + 7) / 8;
+  uint8_t* bitmap = (uint8_t*)calloc(dataSize, sizeof(uint8_t));
+
+  if (bitmap == nullptr) {
+    logWarn("Failed to allocate animation frame memory: " + source);
+    return false;
+  }
+
+  for (int i = 0; i < bits.length(); i++) {
+    if (bits[i] == '1') {
+      bitmap[i / 8] |= (1 << (7 - (i % 8)));
+    }
+  }
+
+  displayDrawPixelIcon(x, y, bitmap, width, height);
+  free(bitmap);
+  return true;
+}
+
+static int displayRenderAnimationPass(int x, int y, const String& animationData, const String& source, int frameDelayMs) {
+  String bits = "";
+  int width = 0;
+  int height = 0;
+  int frameCount = 0;
+  int lineStart = 0;
+
+  while (lineStart < animationData.length()) {
+    int lineEnd = animationData.indexOf('\n', lineStart);
+
+    if (lineEnd < 0) {
+      lineEnd = animationData.length();
+    }
+
+    String line = animationData.substring(lineStart, lineEnd);
+    line.trim();
+    lineStart = lineEnd + 1;
+
+    if (line.length() == 0 || line.startsWith("#")) {
+      continue;
+    }
+
+    if (line == "---") {
+      if (displayRenderFrameBits(x, y, bits, width, height, source)) {
+        frameCount++;
+        delay(frameDelayMs);
+      }
+      bits = "";
+      width = 0;
+      height = 0;
+      continue;
+    }
+
+    bool binaryLine = true;
+    for (int i = 0; i < line.length(); i++) {
+      if (line[i] != '0' && line[i] != '1') {
+        binaryLine = false;
+        break;
+      }
+    }
+
+    if (!binaryLine) {
+      logWarn("Animation ignored non-binary line: " + source);
+      continue;
+    }
+
+    if (width == 0) {
+      width = line.length();
+    }
+
+    if (line.length() != width) {
+      logWarn("Animation frame width mismatch: " + source);
+      bits = "";
+      width = 0;
+      height = 0;
+      continue;
+    }
+
+    bits += line;
+    height++;
+  }
+
+  if (displayRenderFrameBits(x, y, bits, width, height, source)) {
+    frameCount++;
+    delay(frameDelayMs);
+  }
+
+  return frameCount;
 }

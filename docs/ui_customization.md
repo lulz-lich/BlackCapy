@@ -73,6 +73,10 @@ Rules:
 * Comment lines begin with `#`
 * Pixel rows use only `0` and `1`
 * All pixel rows in one file must have the same width
+
+For lightweight animation, use `.anim` files under `/assets/animations/`.
+Each frame uses the same `0` and `1` row format, and frames are separated by a
+line containing only `---`.
 * Width and height are detected by the loader
 
 ---
@@ -98,8 +102,7 @@ Planned areas:
 * Persist selected theme in `Storage`
 * Load custom theme configs from `/themes`
 * Support static ASCII assets
-* Support animated ASCII assets
+* Support animated ASCII/pixel assets with `.anim` files
 * Support static pixel art
-* Support animated pixel art
 * Add real 320x240 display rendering
 * Add theme-aware color palettes

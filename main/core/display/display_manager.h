@@ -38,6 +38,7 @@ void displayDrawBox(int x, int y, int w, int h);
 void displayDrawAsciiFrame(int x, int y, int w, int h, const String& title);
 void displayDrawPixelIcon(int x, int y, const uint8_t* bitmap, int w, int h);
 void displayDrawIconFromFile(int x, int y, const String& filename);
+void displayDrawAnimationFromFile(int x, int y, const String& filename, int frameDelayMs, int loops);
 
 void displaySetTheme(DisplayTheme theme);
 DisplayTheme displayGetTheme();
