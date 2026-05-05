@@ -43,7 +43,7 @@ Responsibilities:
 * Register detected modules
 * Reject unsupported module types
 * Detect module type by ADC resistor ID
-* Support development mock detection
+* Keep development mock detection disabled in production builds
 * Answer `moduleManagerHas(type)` for AppManager runnable checks
 
 ---
@@ -105,24 +105,24 @@ Logger remains responsible for system behavior.
 
 ---
 
-## Pin Conflicts
+## Pin Strategy
 
-The current `hardware_config.h` is a development map and still needs board-level review.
+The production-oriented `hardware_config.h` uses one mutually exclusive expansion slot for external capability modules.
 
-Known risk areas:
+Intentional sharing:
 
-* Shared SPI chip selects between SD, RF, LoRa, CAN and RFID
-* Button pins reused by NFC or RF interrupt pins
-* Status LED or buzzer pins reused by module CS lines
+* RF, LoRa, CAN and RFID share the expansion SPI CS line
+* RF, LoRa, NFC and IR share expansion IRQ/input lines as appropriate
+* RF, LoRa, RFID and NFC share the expansion reset line
 * UART monitor and GPS sharing UART pins
 
-Before hardware production, run the checklist in `docs/hardware.md` and resolve board-specific conflicts in `hardware_config.h`.
+Before hardware production, run `scripts/check_hardware_config.py --strict`, `scripts/release_gate.py` and the checklist in `docs/hardware.md`.
 
 ---
 
 ## Sub-GHz Direction
 
-Future Sub-GHz support should target serious field capability:
+Sub-GHz support should target serious field capability:
 
 * Scan
 * Frequency sweep
@@ -135,7 +135,7 @@ Future Sub-GHz support should target serious field capability:
 * Physical confirmation for any authorized replay
 * Mandatory system logs for transmission actions
 
-Do not treat future Sub-GHz as simple packet capture only.
+Do not treat Sub-GHz as simple packet capture only.
 
 Current Sub-GHz capture flow:
 

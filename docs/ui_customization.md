@@ -36,7 +36,7 @@ Physical UI:
 Settings -> UP/DOWN
 ```
 
-Theme persistence is future work.
+Theme selection is persisted in internal `Storage`.
 
 ---
 

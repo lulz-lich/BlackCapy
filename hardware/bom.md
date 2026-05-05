@@ -11,9 +11,9 @@ It is not a procurement-locked production BOM.
 | Item | Notes |
 | --- | --- |
 | ESP32 module/dev board | Current firmware target is `esp32dev` |
-| 320x240 display | Final UI target; serial fallback exists today |
+| 320x240 SPI TFT | ILI9341-compatible display backend |
 | microSD socket | Native onboard storage |
-| Six physical buttons | UP, DOWN, LEFT, RIGHT, OK, BACK |
+| Six physical buttons | ADC resistor ladder for UP, DOWN, LEFT, RIGHT, OK, BACK |
 | Status LED | Runtime state indication |
 | Buzzer | Audible status/feedback |
 | Pull resistors | Buttons, boot safety and module ID as required |
@@ -52,8 +52,8 @@ Expose enough signals for specialized modules:
 
 Before ordering boards:
 
-* Resolve pin conflicts from `scripts/check_hardware_config.py`
-* Confirm SPI CS strategy for simultaneous modules
+* Pass `scripts/check_hardware_config.py --strict`
+* Confirm expansion slot wiring and mutually exclusive module policy
 * Confirm display bus and backlight pins
 * Confirm power budget for radio modules
 * Confirm level shifting if needed

@@ -413,7 +413,7 @@ Responsibilities:
 
 * Register detected external modules
 * Detect modules by ADC resistor ID
-* Support development mock detection
+* Keep development mock detection disabled in production builds
 * Answer whether a required module is available
 
 ---
@@ -463,16 +463,8 @@ Responsibilities:
 Current state:
 
 ```txt id="7mbp5j"
-Serial fallback rendering
+Adafruit ILI9341 SPI TFT rendering with serial debug mirroring
 ```
-
-Future state:
-
-```txt id="dly0p2"
-Real 320x240 display rendering
-```
-
----
 
 ## Screen Manager
 

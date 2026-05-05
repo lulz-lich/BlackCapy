@@ -11,7 +11,7 @@ It does not replace target-board validation. Pinout, display wiring, module wiri
 Run:
 
 ```bash
-scripts/build.sh
+scripts/release_gate.py
 ```
 
 Required passing gates:
@@ -24,16 +24,27 @@ validate_docs.py
 validate_architecture.py
 validate_platformio.py
 validate_gitignore.py
+check_hardware_config.py --strict
+git diff --check
 pio run
+package_release.py --clean
 ```
 
-Optional hardware report:
+Developer build:
 
 ```bash
-scripts/check_hardware_config.py
+scripts/build.sh
 ```
 
-This report is intentionally non-blocking because the development pin map may differ from the final board.
+`release_gate.py` is the market-release gate. `build.sh` remains a faster developer build gate.
+
+The packaged output is written to:
+
+```txt
+.pio/blackcapy_release/
+```
+
+It contains firmware binaries, a ready microSD tree and `SHA256SUMS`.
 
 ---
 
@@ -55,6 +66,8 @@ Expected core properties:
 * physical UI flow is Home, Tools, Status and Settings
 * Tools renders 4 apps per page
 * DisplayManager uses the Adafruit ILI9341 SPI TFT backend by default
+* physical buttons use the ADC ladder backend by default
+* development module mocks are disabled
 * cloud AI requires gateway configuration and recent physical OK confirmation
 
 ---
@@ -107,11 +120,10 @@ The gateway must keep provider credentials off the ESP32.
 
 ## Hardware Release Blockers
 
-Before calling a hardware build field-ready, resolve or intentionally document:
+Before calling a hardware batch field-ready, physically verify:
 
-* GPIO conflicts in `hardware_config.h`
 * display pin mapping on the target PCB
-* physical button mapping
+* physical ADC button ladder mapping
 * native microSD boot and write behavior
 * ADC module ID resistor ladder values
 * RF/Sub-GHz, IR, NFC, RFID, CAN, GPS and LoRa module wiring

@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "display_manager.h"
 #include "storage.h"
 #include "ui.h"
 
@@ -9,6 +10,7 @@ void runSettingsApp() {
   String profile = storageGetString("profile", "operator");
   bool animations = storageGetBool("animations", true);
   int brightness = storageGetInt("brightness", 80);
+  const ThemeConfig* theme = displayGetThemeConfig();
 
   Serial.print("Profile: ");
   Serial.println(profile);
@@ -19,6 +21,9 @@ void runSettingsApp() {
   Serial.print("Display brightness: ");
   Serial.print(brightness);
   Serial.println("%");
+
+  Serial.print("Display theme: ");
+  Serial.println(theme->name);
 
   Serial.println();
   Serial.println("Applying default professional profile...");

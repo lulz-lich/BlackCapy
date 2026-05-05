@@ -3,6 +3,7 @@
 #include "logger.h"
 #include "filesystem.h"
 #include "storage_policy.h"
+#include "storage.h"
 
 #if BLACKCAPY_DISPLAY_BACKEND_TFT
 #include <SPI.h>
@@ -93,6 +94,10 @@ static const ThemeConfig themes[] = {
 
 static const int themeCount = sizeof(themes) / sizeof(themes[0]);
 
+static bool displayThemeIsValid(int theme) {
+  return theme >= 0 && theme < themeCount;
+}
+
 // Pixel art rendering functions
 static uint8_t* displayLoadBitmap(const String& filename, int* width, int* height);
 static void displayRenderBitmapASCII(int x, int y, const uint8_t* bitmap, int w, int h);
@@ -108,6 +113,11 @@ static void displayRenderBitmapTFT(int x, int y, const uint8_t* bitmap, int w, i
 #endif
 
 void displayInit() {
+  int storedTheme = storageGetInt("display_theme", THEME_DARK);
+  if (displayThemeIsValid(storedTheme)) {
+    currentTheme = (DisplayTheme)storedTheme;
+  }
+
   logInfo("Display manager initialized.");
   logInfo("Target resolution: " + String(DISPLAY_WIDTH) + "x" + String(DISPLAY_HEIGHT));
 
@@ -394,8 +404,9 @@ void displayDrawAnimationFromFileScaled(int x, int y, const String& filename, in
 }
 
 void displaySetTheme(DisplayTheme theme) {
-  if (theme >= 0 && theme < themeCount) {
+  if (displayThemeIsValid(theme)) {
     currentTheme = theme;
+    storageSetInt("display_theme", theme);
     logInfo(String("Display theme changed to: ") + themes[theme].name);
   } else {
     logWarn("Invalid theme requested");

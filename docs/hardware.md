@@ -11,7 +11,7 @@ Serial logs are useful during validation, but the final product direction is the
 ```txt
 MCU: ESP32
 Display: 320x240 SPI TFT, ILI9341-compatible by default
-Buttons: UP, DOWN, LEFT, RIGHT, OK, BACK
+Buttons: UP, DOWN, LEFT, RIGHT, OK, BACK through ADC resistor ladder
 Storage: native onboard microSD
 Status: LED and buzzer
 Expansion bus: I2C, SPI, UART, GPIO
@@ -92,6 +92,12 @@ OK
 BACK
 ```
 
+Production firmware reads the button ladder on:
+
+```txt
+BTN_ADC_PIN GPIO 39
+```
+
 Expected behavior:
 
 * Home, Tools, Status and Settings screens navigate with LEFT/RIGHT
@@ -146,10 +152,11 @@ Module missing warning         -> Logger
 
 ## Expansion Bus
 
-Verify bus availability and pin conflicts:
+Verify bus availability:
 
 * I2C scanner runs without blocking
-* SPI chip selects do not conflict between SD, RF, LoRa, CAN and RFID
+* Native microSD keeps its own CS
+* Expansion modules share one external module slot intentionally
 * UART monitor does not interfere with debug serial unless intentionally configured
 * GPIO apps avoid reserved display, SD and module-ID pins
 

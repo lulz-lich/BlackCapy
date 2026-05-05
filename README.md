@@ -20,6 +20,8 @@ The baseline guarantees:
 * Treat microSD as native onboard storage, not as an expansion module
 * Preserve PlatformIO compatibility with `src_dir = main`
 * Use the 320x240 SPI TFT as the primary UI backend, with serial kept as a debug mirror
+* Use ADC-ladder physical buttons to keep GPIO available for display, storage and expansion
+* Keep development module mocks disabled in production firmware
 * Keep cloud AI behind a gateway, with no provider API key in firmware
 
 ---
@@ -31,7 +33,7 @@ The baseline guarantees:
 * AppManager registration, selection, execution and runnable checks
 * AppContract permissions and app status metadata
 * ModuleManifest for supported external module types
-* ModuleManager with mock and ADC resistor-ID detection
+* ModuleManager with ADC resistor-ID detection and production-disabled mocks
 * CaptureWriter for `/captures/*.log` operational evidence
 * Logger with optional `/logs/system.log` output
 * FileSystem initialization for native microSD directories
@@ -127,6 +129,18 @@ Hardware pin conflict report:
 scripts/check_hardware_config.py
 ```
 
+Production release gate:
+
+```bash
+scripts/release_gate.py
+```
+
+Create release artifacts manually after a successful build:
+
+```bash
+scripts/package_release.py --clean
+```
+
 Upload:
 
 ```bash
@@ -191,7 +205,7 @@ Performance comes first. The physical TFT is the primary interface; serial outpu
 
 Expansion modules are for specialized capabilities such as RF, Sub-GHz, IR, NFC, RFID, CAN, GPS, LoRa and sensors.
 
-Future Sub-GHz work should target a serious tool level: scan, frequency sweep, live RSSI, raw capture, decoder support, signal database on microSD, dedicated UI, AppManager/ModuleManager/CaptureWriter integration and physically confirmed authorized replay with mandatory logs.
+Sub-GHz capability should remain conservative and auditable: scan, frequency sweep, live RSSI, raw capture, decoder support, signal database on microSD, dedicated UI, AppManager/ModuleManager/CaptureWriter integration and physically confirmed authorized replay with mandatory logs.
 
 BadUSB is not a priority. If it is added later, it should be an external hardware module with native USB HID support, disabled by default, with physical confirmation and logs.
 
@@ -199,6 +213,6 @@ BadUSB is not a priority. If it is added later, it should be an external hardwar
 
 ## Status
 
-Phase: 1.0.0 software baseline.
+Phase: 1.0.0 release baseline.
 
-The firmware, tooling, docs and gateway are validation-gated. Field production still requires target-board pinout review and hardware validation using `docs/hardware.md`.
+The firmware, tooling, docs and gateway are validation-gated. Market release still requires physical target-board validation, enclosure validation, regulatory review and manufacturing QA.

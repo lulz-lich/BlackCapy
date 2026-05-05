@@ -1,11 +1,11 @@
 # BlackCapy ESP32 Pinout
 
-This file documents the current development pin map from `main/firmware/include/hardware_config.h`.
+This file documents the production-oriented pin map from `main/firmware/include/hardware_config.h`.
 
-The map is not production-final. Run the report tool before hardware work:
+Run the report tool before hardware work:
 
 ```bash
-scripts/check_hardware_config.py
+scripts/check_hardware_config.py --strict
 ```
 
 ---
@@ -14,14 +14,9 @@ scripts/check_hardware_config.py
 
 | Function | Pin |
 | --- | --- |
-| Status LED | GPIO 2 |
-| Buzzer | GPIO 13 |
-| Button UP | GPIO 32 |
-| Button DOWN | GPIO 33 |
-| Button LEFT | GPIO 25 |
-| Button RIGHT | GPIO 26 |
-| Button OK | GPIO 27 |
-| Button BACK | GPIO 14 |
+| Status LED | GPIO 25 |
+| Buzzer | GPIO 26 |
+| Button ADC ladder | GPIO 39 |
 | Module ADC ID | GPIO 36 |
 
 ---
@@ -50,7 +45,7 @@ These are configurable development defaults for hardware apps.
 
 | Tool | Pin |
 | --- | --- |
-| PWM Generator | GPIO 18 |
+| PWM Generator | GPIO 27 |
 | Analog Reader | GPIO 34 |
 
 ---
@@ -59,34 +54,34 @@ These are configurable development defaults for hardware apps.
 
 | Module | Pins |
 | --- | --- |
-| IR | RX GPIO 34, TX GPIO 4 |
-| RFID RC522 | CS GPIO 15, RST GPIO 27 |
+| Expansion SPI CS | GPIO 13 |
+| Expansion IRQ | GPIO 32 |
+| Expansion RST | GPIO 33 |
+| Expansion IO1 | GPIO 27 |
+| Expansion IO2 | GPIO 35 |
+| Expansion analog | GPIO 34 |
+| IR | RX GPIO 32, TX GPIO 27 |
+| RFID RC522 | CS GPIO 13, RST GPIO 33 |
 | NFC PN532 | IRQ GPIO 32, RST GPIO 33 |
 | GPS | RX GPIO 16, TX GPIO 17 |
-| LoRa SX127x | CS GPIO 5, DIO0 GPIO 26, RST GPIO 14, DIO1 GPIO 35 |
-| RF CC1101 | CS GPIO 13, GDO0 GPIO 25, RST GPIO 12, GDO2 GPIO 39 |
-| CAN MCP2515 | CS GPIO 2 |
+| LoRa SX127x | CS GPIO 13, DIO0 GPIO 32, RST GPIO 33, DIO1 GPIO 35 |
+| RF CC1101 | CS GPIO 13, GDO0 GPIO 32, RST GPIO 33, GDO2 GPIO 35 |
+| CAN MCP2515 | CS GPIO 13 |
 
 ---
 
-## Known Development Conflicts
+## Intentional Sharing
 
-The current map intentionally exposes conflicts so firmware can compile before the board pinout is final.
+The expansion module families share one external module slot. Shared CS, IRQ,
+RST and auxiliary pins are intentional because `ModuleManager` detects one
+inserted capability module at a time through the ADC ID ladder.
 
-Known conflicts include:
-
-* Native microSD CS and LoRa CS both using GPIO 5
-* Status LED and CAN CS both using GPIO 2
-* Buzzer and RF CS both using GPIO 13
-* Buttons sharing pins with NFC, RFID, LoRa and RF signal pins
-* PWM test pin using SPI SCK
-* Analog test pin sharing IR RX
-
-Before board production, resolve these conflicts in `hardware_config.h` and rerun:
+Before board production, rerun:
 
 ```bash
-scripts/check_hardware_config.py
+scripts/check_hardware_config.py --strict
 scripts/build.sh
+scripts/release_gate.py
 ```
 
 ---
@@ -96,8 +91,9 @@ scripts/build.sh
 For the production board:
 
 * Keep native microSD on its own CS
-* Keep physical buttons free from module IRQ/reset lines
-* Give each SPI module a unique CS if modules can be connected together
+* Keep the physical button ladder isolated from module ID ADC
+* Give each onboard SPI device a unique CS
+* Keep external capability modules mutually exclusive unless a later board revision adds more CS lines
 * Avoid boot strap pins for active-low CS lines unless the board design handles pull states
 * Keep ADC module ID isolated from user analog tools
 * Confirm UART ownership between GPS and UART Monitor workflows

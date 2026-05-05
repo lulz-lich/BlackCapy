@@ -112,9 +112,9 @@ displayDrawAnimationFromFileScaled(0, 0, "animations/boot_pulse.anim", 120, 2, 3
 
 ---
 
-## Future Work
+## Optional Evolution
 
-Planned evolution:
+Optional evolution:
 
 * Hardware-specific polish for the selected target board
 * Optional serial mirror toggle

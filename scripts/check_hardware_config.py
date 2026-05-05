@@ -9,6 +9,7 @@ hardware production.
 from __future__ import annotations
 
 import re
+import argparse
 from collections import defaultdict
 from pathlib import Path
 
@@ -22,6 +23,12 @@ ALLOWED_SHARED_GROUPS = (
     {"SPI_CS_PIN", "SD_CS_PIN"},
     {"UART_RX_PIN", "GPS_RX_PIN"},
     {"UART_TX_PIN", "GPS_TX_PIN"},
+    {"EXPANSION_SPI_CS_PIN", "RFID_CS_PIN", "LORA_CS_PIN", "RF_CS_PIN", "CAN_CS_PIN"},
+    {"EXPANSION_IRQ_PIN", "IR_RX_PIN", "NFC_IRQ_PIN", "LORA_DIO0_PIN", "RF_GDO0_PIN"},
+    {"EXPANSION_RST_PIN", "RFID_RST_PIN", "NFC_RST_PIN", "LORA_RST_PIN", "RF_RST_PIN"},
+    {"EXPANSION_IO1_PIN", "IR_TX_PIN", "PWM_TEST_PIN"},
+    {"EXPANSION_IO2_PIN", "LORA_DIO1_PIN", "RF_GDO2_PIN"},
+    {"EXPANSION_ANALOG_PIN", "ANALOG_TEST_PIN"},
 )
 
 
@@ -40,7 +47,18 @@ def allowed(names: set[str]) -> bool:
     return any(names <= group for group in ALLOWED_SHARED_GROUPS)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Report potential BlackCapy pin conflicts.")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Return a non-zero exit code if unapproved conflicts are found.",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
+    args = parse_args()
     raw_values: dict[str, str] = {}
 
     for line in CONFIG.read_text(encoding="utf-8").splitlines():
@@ -70,7 +88,7 @@ def main() -> int:
     print()
     print("Review these before board production. Shared buses may be valid, but CS,")
     print("button, IRQ, reset, LED and buzzer reuse should be intentional.")
-    return 0
+    return 1 if args.strict else 0
 
 
 if __name__ == "__main__":

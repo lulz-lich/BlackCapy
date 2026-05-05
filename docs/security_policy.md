@@ -58,7 +58,7 @@ Serial capture export only accepts simple output filenames using letters, number
 
 ## Transmission And Replay
 
-Any future feature that transmits, replays or emulates signals must require:
+Any feature that transmits, replays or emulates signals must require:
 
 * Explicit user selection
 * Physical confirmation
@@ -75,7 +75,7 @@ This applies especially to Sub-GHz replay, IR transmit, NFC/RFID emulation and s
 
 BadUSB is not a current priority.
 
-If implemented later, it must be:
+If it is ever implemented, it must be:
 
 * An external hardware module
 * Based on hardware with native USB HID support, such as ESP32-S3 or RP2040

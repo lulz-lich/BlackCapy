@@ -121,6 +121,7 @@ void moduleManagerDetectByADC() {
 }
 
 void moduleManagerDetectMock() {
+#if BLACKCAPY_ENABLE_MODULE_MOCKS
   /*
     Development-only mock detection.
 
@@ -138,6 +139,9 @@ void moduleManagerDetectMock() {
   // moduleManagerRegister(MODULE_CAN);
   // moduleManagerRegister(MODULE_GPS);
   // moduleManagerRegister(MODULE_LORA);
+#else
+  logInfo("Module mock detection disabled.");
+#endif
 }
 
 void moduleManagerPrintDetected() {
@@ -196,7 +200,9 @@ void runModuleManager() {
   Serial.println();
   Serial.println("Running module detection...");
 
+#if BLACKCAPY_ENABLE_MODULE_MOCKS
   moduleManagerDetectMock();
+#endif
   moduleManagerDetectByADC();
 
   moduleManagerPrintDetected();

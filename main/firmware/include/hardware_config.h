@@ -16,16 +16,19 @@
 #define DISPLAY_TFT_ROTATION 1
 
 // Navigation buttons
-#define BTN_UP_PIN 32
-#define BTN_DOWN_PIN 33
-#define BTN_LEFT_PIN 25
-#define BTN_RIGHT_PIN 26
-#define BTN_OK_PIN 27
-#define BTN_BACK_PIN 14
+#define BLACKCAPY_INPUT_BACKEND_ADC 1
+#define BTN_ADC_PIN 39
+#define BTN_ADC_TOLERANCE 180
+#define BTN_UP_ADC_VALUE 520
+#define BTN_DOWN_ADC_VALUE 1120
+#define BTN_LEFT_ADC_VALUE 1720
+#define BTN_RIGHT_ADC_VALUE 2320
+#define BTN_OK_ADC_VALUE 2920
+#define BTN_BACK_ADC_VALUE 3520
 
 // Status
-#define STATUS_LED_PIN 2
-#define BUZZER_PIN 13
+#define STATUS_LED_PIN 25
+#define BUZZER_PIN 26
 
 // I2C
 #define I2C_SDA_PIN 21
@@ -43,7 +46,7 @@
 #define UART_BAUDRATE 9600
 
 // General hardware tool defaults
-#define PWM_TEST_PIN 18
+#define PWM_TEST_PIN 27
 #define PWM_TEST_CHANNEL 0
 #define PWM_TEST_FREQUENCY 5000
 #define PWM_TEST_RESOLUTION 8
@@ -56,17 +59,29 @@
 // Module detection
 #define MODULE_ID_ADC_PIN 36
 
+// Product expansion slot
+// External capability modules are mutually exclusive and share these control lines.
+#define EXPANSION_SPI_CS_PIN 13
+#define EXPANSION_IRQ_PIN 32
+#define EXPANSION_RST_PIN 33
+#define EXPANSION_IO1_PIN 27
+#define EXPANSION_IO2_PIN 35
+#define EXPANSION_ANALOG_PIN 34
+
+// Development features
+#define BLACKCAPY_ENABLE_MODULE_MOCKS 0
+
 // IR
-#define IR_RX_PIN 34
-#define IR_TX_PIN 4
+#define IR_RX_PIN EXPANSION_IRQ_PIN
+#define IR_TX_PIN EXPANSION_IO1_PIN
 
 // RFID RC522
-#define RFID_CS_PIN 15
-#define RFID_RST_PIN 27
+#define RFID_CS_PIN EXPANSION_SPI_CS_PIN
+#define RFID_RST_PIN EXPANSION_RST_PIN
 
 // NFC PN532
-#define NFC_IRQ_PIN 32
-#define NFC_RST_PIN 33
+#define NFC_IRQ_PIN EXPANSION_IRQ_PIN
+#define NFC_RST_PIN EXPANSION_RST_PIN
 
 // GPS
 #define GPS_RX_PIN 16
@@ -74,21 +89,21 @@
 #define GPS_BAUDRATE 9600
 
 // LoRa SX127x
-#define LORA_CS_PIN 5
-#define LORA_DIO0_PIN 26
-#define LORA_RST_PIN 14
-#define LORA_DIO1_PIN 35
+#define LORA_CS_PIN EXPANSION_SPI_CS_PIN
+#define LORA_DIO0_PIN EXPANSION_IRQ_PIN
+#define LORA_RST_PIN EXPANSION_RST_PIN
+#define LORA_DIO1_PIN EXPANSION_IO2_PIN
 #define LORA_FREQUENCY 915.0
 
 // RF CC1101
-#define RF_CS_PIN 13
-#define RF_GDO0_PIN 25
-#define RF_RST_PIN 12
-#define RF_GDO2_PIN 39
+#define RF_CS_PIN EXPANSION_SPI_CS_PIN
+#define RF_GDO0_PIN EXPANSION_IRQ_PIN
+#define RF_RST_PIN EXPANSION_RST_PIN
+#define RF_GDO2_PIN EXPANSION_IO2_PIN
 #define RF_FREQUENCY 433.92
 
 // CAN MCP2515
-#define CAN_CS_PIN 2
+#define CAN_CS_PIN EXPANSION_SPI_CS_PIN
 #define CAN_SPEED CAN_500KBPS
 
 #endif

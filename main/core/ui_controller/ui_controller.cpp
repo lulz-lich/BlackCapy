@@ -83,7 +83,6 @@ void handleSettingsInput(InputEvent event) {
       break;
 
     case INPUT_OK:
-      // Could add theme persistence here
       logInfo("Theme setting confirmed");
       break;
 

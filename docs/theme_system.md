@@ -1,8 +1,8 @@
 # BlackCapy Theme System
 
-The current theme system lives in `DisplayManager` and affects serial fallback rendering plus future display rendering.
+The current theme system lives in `DisplayManager` and affects TFT rendering plus serial debug mirroring.
 
-Themes are runtime state today. Persistent theme storage is planned, but not required for the current firmware base.
+Themes persist through internal `Storage` under the `display_theme` key.
 
 ---
 
@@ -66,12 +66,10 @@ The theme system must stay cheap: no heap-heavy state, no blocking transitions a
 
 ---
 
-## Future Work
+## Optional Evolution
 
-Planned improvements:
+Optional improvements:
 
-* Persist selected theme through `Storage`
-* Support real 320x240 color palettes
 * Support static and animated ASCII
 * Support static and animated pixel art
 * Load custom themes from `/themes` on native microSD

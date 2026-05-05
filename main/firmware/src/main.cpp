@@ -401,7 +401,9 @@ void setup() {
   statusInit();
   moduleManifestInit();
   moduleManagerInit();
+#if BLACKCAPY_ENABLE_MODULE_MOCKS
   moduleManagerDetectMock();
+#endif
   moduleManagerDetectByADC();
   inputInit();
   displayInit();
